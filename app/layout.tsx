@@ -1,6 +1,8 @@
 // app/layout.tsx
 import './globals.css' // Make sure you have this file
 
+const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID; // Accessing the GA ID from .env.local
+
 export default function RootLayout({
   children,
 }: {
@@ -41,7 +43,21 @@ export default function RootLayout({
 
         
       </head>
-      <body className={`antialiased`}>{children}</body>
+      <body className={`antialiased`}>
+        {children}
+        {/* Google Analytics */}
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_TRACKING_ID}');
+            `,
+          }}
+        />
+      </body>
     </html>
   )
 }
