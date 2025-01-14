@@ -5,18 +5,30 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Upload, Download, X, ImageIcon } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { Indie_Flower } from 'next/font/google'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
+
+// Simulated presets
+const presets = [
+  { name: 'Original', filter: '' },
+  { name: 'Vintage', filter: 'brightness(100%) contrast(90%) saturate(150%) sepia(35%) hue-rotate(15deg) grayscale(10%)' },
+  { name: 'B&W', filter: 'grayscale(100%) contrast(120%)' },
+  { name: 'Warm', filter: 'saturate(150%) brightness(105%) contrast(105%) hue-rotate(10deg)' },
+  { name: 'Cool', filter: 'saturate(90%) brightness(100%) contrast(105%) hue-rotate(-10deg)' },
+]
 
 export default function PolaroidGenerator() {
   const [image, setImage] = useState<string | null>(null)
   const [caption, setCaption] = useState('')
   const [loading, setLoading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [selectedPreset, setSelectedPreset] = useState(presets[0])
   const polaroidRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -78,6 +90,7 @@ export default function PolaroidGenerator() {
   const clearImage = () => {
     setImage(null)
     setCaption('')
+    setSelectedPreset(presets[0])
   }
 
   return (
@@ -88,7 +101,7 @@ export default function PolaroidGenerator() {
             Polaroid Generator
           </h1>
           <p className="text-gray-600">
-            Create beautiful memories in an instant
+            Create beautiful memories with custom presets
           </p>
         </div>
 
@@ -152,10 +165,12 @@ export default function PolaroidGenerator() {
                       className="relative bg-white p-4 shadow-xl rounded-sm transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
                     >
                       <div className="aspect-square relative overflow-hidden rounded-sm">
-                        <img
+                        <Image
                           src={image}
                           alt="Uploaded image"
-                          className="w-full h-full object-cover"
+                          layout="fill"
+                          objectFit="cover"
+                          style={{ filter: selectedPreset.filter }}
                         />
                       </div>
                       <div className="h-16 flex items-center justify-center">
@@ -184,6 +199,25 @@ export default function PolaroidGenerator() {
                     maxLength={50}
                     className="backdrop-blur-sm bg-white/50 border-gray-200/50 focus:border-blue-300 transition-all duration-200"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="preset" className="text-gray-700">Choose a preset</Label>
+                  <Select
+                    value={selectedPreset.name}
+                    onValueChange={(value) => setSelectedPreset(presets.find(p => p.name === value) || presets[0])}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a preset" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {presets.map((preset) => (
+                        <SelectItem key={preset.name} value={preset.name}>
+                          {preset.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Button
