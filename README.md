@@ -15,7 +15,7 @@ Upload, customize, and download your personalized Polaroids in seconds.
 ---
 
 ## 🚀 **Live Demo**
-🔗 [Check out the live application](https://polaroid-maker.vercel.app)
+🔗 [Check out the live application](https://polaroidpix.vercel.app/)
 
 ---
 
