@@ -1,36 +1,39 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Upload, Download, X, ImageIcon } from 'lucide-react'
+import { Download, ImageIcon, X, Camera, Sunset, Moon, Sun, Sparkles } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { Indie_Flower } from 'next/font/google'
 import { cn } from '@/lib/utils'
+import { ImageColorGrading } from './color-grading'
 import Image from 'next/image'
+import SharePolaroid from '@/components/SharePolaroid'
 
 const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
 
-// Simulated presets
 const presets = [
-  { name: 'Original', filter: '' },
-  { name: 'Vintage', filter: 'brightness(100%) contrast(90%) saturate(150%) sepia(35%) hue-rotate(15deg) grayscale(10%)' },
-  { name: 'B&W', filter: 'grayscale(100%) contrast(120%)' },
-  { name: 'Warm', filter: 'saturate(150%) brightness(105%) contrast(105%) hue-rotate(10deg)' },
-  { name: 'Cool', filter: 'saturate(90%) brightness(100%) contrast(105%) hue-rotate(-10deg)' },
+  { name: 'original', label: 'Natural', icon: Camera },
+  { name: 'vintage', label: 'Retro', icon: Sunset },
+  { name: 'blackAndWhite', label: 'Mono', icon: Moon },
+  { name: 'warm', label: 'Sunny', icon: Sun },
+  { name: 'cool', label: 'Fresh', icon: Sparkles },
 ]
 
 export default function PolaroidGenerator() {
   const [image, setImage] = useState<string | null>(null)
+  const [processedImage, setProcessedImage] = useState<string | null>(null)
   const [caption, setCaption] = useState('')
+  const [captionPosition, setCaptionPosition] = useState({ x: 50, y: 85 })
+  const [isDraggingCaption, setIsDraggingCaption] = useState(false)
   const [loading, setLoading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [selectedPreset, setSelectedPreset] = useState(presets[0])
   const polaroidRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const captionRef = useRef<HTMLParagraphElement>(null)
+  const [isSharing, setIsSharing] = useState(false)
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -68,7 +71,7 @@ export default function PolaroidGenerator() {
   }
 
   const downloadImage = async () => {
-    if (!polaroidRef.current || !image) return
+    if (!polaroidRef.current || !processedImage) return
     
     setLoading(true)
     try {
@@ -89,56 +92,84 @@ export default function PolaroidGenerator() {
 
   const clearImage = () => {
     setImage(null)
+    setProcessedImage(null)
     setCaption('')
+    setCaptionPosition({ x: 50, y: 85 })
     setSelectedPreset(presets[0])
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto space-y-8">
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-pink-600 bg-clip-text text-transparent">
-            Polaroid Generator
-          </h1>
-          <p className="text-gray-600">
-            Create beautiful memories with custom presets
-          </p>
-        </div>
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (captionRef.current && captionRef.current.contains(e.target as Node)) {
+      setIsDraggingCaption(true)
+      e.stopPropagation()
+    }
+  }
 
-        <Card className="overflow-hidden backdrop-blur-xl bg-white/80 border-0 shadow-2xl">
-          <CardContent className="p-6 space-y-6">
-            <div 
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={cn(
-                "transition-all duration-300 ease-in-out",
-                "border-2 border-dashed rounded-2xl p-8",
-                isDragging ? "border-blue-400 bg-blue-50" : "border-gray-200 hover:border-gray-300",
-                image && "border-none p-0"
-              )}
-            >
-              {!image ? (
-                <div className="text-center space-y-4">
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDraggingCaption && polaroidRef.current) {
+      const rect = polaroidRef.current.getBoundingClientRect()
+      const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
+      const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100))
+      setCaptionPosition({ x, y })
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDraggingCaption(false)
+  }
+
+  useEffect(() => {
+    if (image) {
+      setProcessedImage(image)
+    }
+  }, [image])
+
+  useEffect(() => {
+    document.addEventListener('mouseup', handleMouseUp)
+    return () => {
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="h-screen flex flex-col">
+        {/* Main Content */}
+        <div className="flex-1 overflow-auto px-4 py-6">
+          <div className="max-w-md mx-auto">
+            {!image ? (
+              <div 
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={cn(
+                  "h-[70vh] transition-all duration-300 ease-in-out",
+                  "border-2 border-dashed rounded-3xl",
+                  "flex items-center justify-center",
+                  "backdrop-blur-xl bg-white/10",
+                  isDragging ? "border-purple-400 bg-purple-500/20" : "border-white/20 hover:border-white/40"
+                )}
+              >
+                <div className="text-center space-y-4 p-6">
                   <div className="flex justify-center">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-pink-100 flex items-center justify-center">
-                      <Upload className="h-10 w-10 text-blue-500" />
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-400/20 to-pink-400/20 backdrop-blur-xl flex items-center justify-center">
+                      <ImageIcon className="h-10 w-10 text-white/80" />
                     </div>
                   </div>
-                  <div>
-                    <p className="text-lg font-medium text-gray-700">
+                  <div className="space-y-2">
+                    <p className="text-lg font-medium text-white/80">
                       Drag and drop your image here
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-white/60">
                       or
                     </p>
                     <Button
                       variant="outline"
                       onClick={() => fileInputRef.current?.click()}
-                      className="mt-2"
+                      className="mt-2 border-white/20 text-white/80 hover:bg-white/10"
                     >
                       <ImageIcon className="w-4 h-4 mr-2" />
-                      Browse files
+                      Choose Photo
                     </Button>
                     <Input
                       ref={fileInputRef}
@@ -149,95 +180,137 @@ export default function PolaroidGenerator() {
                     />
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="absolute -right-2 -top-2 rounded-full z-10 bg-white shadow-md hover:bg-gray-100 transition-colors"
-                      onClick={clearImage}
+              </div>
+            ) : (
+              <div className="relative">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute -right-2 -top-2 rounded-full z-10 bg-black/40 border-white/20 text-white/80 hover:bg-black/60"
+                  onClick={clearImage}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                <div
+                  ref={polaroidRef}
+                  className="relative bg-white rounded-2xl transform transition-all duration-300 hover:scale-[1.02]"
+                  style={{
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                  }}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                >
+                  <div className="p-3">
+                    <div 
+                      className="aspect-[4/5] relative overflow-hidden rounded-xl"
                     >
-                      <X className="h-4 w-4" />
-                    </Button>
-                    <div
-                      ref={polaroidRef}
-                      className="relative bg-white p-4 shadow-xl rounded-sm transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
-                    >
-                      <div className="aspect-square relative overflow-hidden rounded-sm">
+                      {image && (
+                        <ImageColorGrading
+                          image={image}
+                          preset={selectedPreset.name}
+                          onProcessedImageChange={setProcessedImage}
+                        />
+                      )}
+                      {processedImage && (
                         <Image
-                          src={image}
-                          alt="Uploaded image"
+                          src={processedImage}
+                          alt="Processed image"
                           layout="fill"
                           objectFit="cover"
-                          style={{ filter: selectedPreset.filter }}
                         />
-                      </div>
-                      <div className="h-16 flex items-center justify-center">
-                        {caption && (
-                          <p className={`text-center text-xl text-gray-800 mt-2 leading-tight ${indieFlower.className}`}>
-                            {caption}
-                          </p>
-                        )}
-                      </div>
+                      )}
+                    </div>
+                    <div className="h-16 flex items-center justify-center mt-2 relative">
+                      {caption && (
+                        <p
+                          ref={captionRef}
+                          className={`absolute text-center text-xl text-gray-800 leading-tight cursor-move ${indieFlower.className}`}
+                          style={{
+                            left: `${captionPosition.x}%`,
+                            top: `${captionPosition.y}%`,
+                            transform: 'translate(-50%, -50%) rotate(-2deg)',
+                            textShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)',
+                          }}
+                        >
+                          {caption}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
 
-            {image && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="caption" className="text-gray-700">Add a caption</Label>
-                  <Input
-                    id="caption"
-                    type="text"
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                    placeholder="Write something memorable..."
-                    maxLength={50}
-                    className="backdrop-blur-sm bg-white/50 border-gray-200/50 focus:border-blue-300 transition-all duration-200"
-                  />
+                {/* Caption Input */}
+                <div className="mt-6 space-y-4">
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      value={caption}
+                      onChange={(e) => setCaption(e.target.value)}
+                      placeholder="Add a caption..."
+                      maxLength={50}
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl backdrop-blur-xl"
+                    />
+                  </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="preset" className="text-gray-700">Choose a preset</Label>
-                  <Select
-                    value={selectedPreset.name}
-                    onValueChange={(value) => setSelectedPreset(presets.find(p => p.name === value) || presets[0])}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a preset" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {presets.map((preset) => (
-                        <SelectItem key={preset.name} value={preset.name}>
-                          {preset.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <Button
-                  onClick={downloadImage}
-                  className="w-full bg-gradient-to-r from-blue-500 to-pink-500 hover:from-blue-600 hover:to-pink-600 text-white transition-all duration-300"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    'Generating...'
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Polaroid
-                    </>
-                  )}
-                </Button>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        {/* Bottom Navigation */}
+        <div className="px-6 py-4 bg-black/20 backdrop-blur-xl">
+          <div className="max-w-md mx-auto">
+            <div className="flex items-center justify-around">
+              {presets.map((preset) => (
+                <div
+                  key={preset.name}
+                  className={cn(
+                    "flex flex-col items-center gap-1",
+                    "transition-all duration-200"
+                  )}
+                  onClick={() => setSelectedPreset(preset)}
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "rounded-full w-12 h-12 backdrop-blur-sm",
+                      selectedPreset.name === preset.name
+                        ? "bg-purple-500/20 text-white"
+                        : "bg-white/10 text-white/60 hover:bg-white/20"
+                    )}
+                  >
+                    <preset.icon className="w-5 h-5" />
+                  </Button>
+                  <span className="text-xs text-white/60">
+                    {preset.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-center gap-4">
+              <Button
+                onClick={downloadImage}
+                disabled={!image || loading}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full px-8"
+              >
+                {loading ? (
+                  'Processing...'
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </>
+                )}
+              </Button>
+              <SharePolaroid
+                polaroidRef={polaroidRef}
+                isLoading={isSharing}
+                setIsLoading={setIsSharing}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
