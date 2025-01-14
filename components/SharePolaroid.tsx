@@ -69,7 +69,7 @@ const SharePolaroid: React.FC<SharePolaroidProps> = ({
   return (
     <Button
       variant="outline"
-      className="border-white/20 text-white/80 hover:bg-white/10 rounded-full"
+      className="border-white/20 bg-black/20 backdrop-blur-xl text-white/80 hover:bg-white/10 rounded-full"
       onClick={shareImage}
       disabled={isLoading}
     >

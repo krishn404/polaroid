@@ -132,10 +132,14 @@ export default function PolaroidGenerator() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div 
+      className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
+    >
       <div className="h-screen flex flex-col">
         {/* Main Content */}
-        <div className="flex-1 overflow-auto px-4 py-6">
+        <div 
+          className="flex-1 overflow-auto px-4 py-6"
+        >
           <div className="max-w-md mx-auto">
             {!image ? (
               <div 
@@ -166,7 +170,7 @@ export default function PolaroidGenerator() {
                     <Button
                       variant="outline"
                       onClick={() => fileInputRef.current?.click()}
-                      className="mt-2 border-white/20 text-white/80 hover:bg-white/10"
+                      className="mt-2 border-white/20 bg-black text-white/80 hover:bg-white"
                     >
                       <ImageIcon className="w-4 h-4 mr-2" />
                       Choose Photo
@@ -182,7 +186,9 @@ export default function PolaroidGenerator() {
                 </div>
               </div>
             ) : (
-              <div className="relative">
+              <div 
+                className="relative"
+              >
                 <Button
                   variant="outline"
                   size="icon"
@@ -258,7 +264,9 @@ export default function PolaroidGenerator() {
         </div>
 
         {/* Bottom Navigation */}
-        <div className="px-6 py-4 bg-black/20 backdrop-blur-xl">
+        <div 
+          className="px-6 py-4 bg-black/20 backdrop-blur-xl"
+        >
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-around">
               {presets.map((preset) => (
@@ -308,6 +316,7 @@ export default function PolaroidGenerator() {
                 isLoading={isSharing}
                 setIsLoading={setIsSharing}
               />
+              
             </div>
           </div>
         </div>
