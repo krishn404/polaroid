@@ -7,12 +7,12 @@ import { Gloria_Hallelujah } from 'next/font/google'
 import PolaroidGenerator from './polaroid-generator'
 
 const polaroidData = [
-  { src: "/polaroid1.jpg", caption: "Let's Doodle" },
-  { src: "/polaroid2.jpg", caption: "City nights" },
-  { src: "/polaroid3.jpg", caption: "Perfect Bloom" },
-  { src: "/polaroid4.jpg", caption: "Sunset session" },
-  { src: "/polaroid5.jpg", caption: "Street style" },
-  { src: "/polaroid6.jpg", caption: "Just cruising" }
+  { src: "/public/Polaroid1.jpg", caption: "Let's Doodle" },
+  { src: "/public/Polaroid2.jpg", caption: "City nights" },
+  { src: "/public/Polaroid3.jpg", caption: "Perfect Bloom" },
+  { src: "/public/Polaroid4.jpg", caption: "Sunset session" },
+  { src: "/public/Polaroid5.jpg", caption: "Street style" },
+  { src: "/public/Polaroid6.jpg", caption: "Just cruising" }
 ]
 
 // Define a new type that includes initial
