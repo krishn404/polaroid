@@ -1,10 +1,10 @@
-// app/page.tsx
-import PolaroidGenerator from "@/components/polaroid-generator";
+import PolaroidStack from "@/components/polaroid-stack";
 
 export default function Home() {
   return (
     <div>
-      <PolaroidGenerator />
+      <PolaroidStack />
     </div>
   );
 }
+
