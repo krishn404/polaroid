@@ -5,6 +5,14 @@ import React, { useEffect, useRef } from 'react'
 interface ColorGradingProps {
   image: string
   preset: string
+  adjustments?: {
+    brightness?: number
+    contrast?: number
+    saturation?: number
+    hue?: number
+    noise?: number
+    glare?: number
+  }
   onProcessedImageChange: (processedImage: string) => void
 }
 
@@ -16,7 +24,7 @@ const presets = {
   cool: { brightness: 1, contrast: 1.05, saturation: 0.9, hue: -10, noise: 0, glare: 0 },
 }
 
-export const ImageColorGrading: React.FC<ColorGradingProps> = ({ image, preset, onProcessedImageChange }) => {
+export const ImageColorGrading: React.FC<ColorGradingProps> = ({ image, preset, adjustments = {}, onProcessedImageChange }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -36,7 +44,10 @@ export const ImageColorGrading: React.FC<ColorGradingProps> = ({ image, preset, 
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       const data = imageData.data
-      const presetValues = presets[preset as keyof typeof presets]
+      const presetValues = {
+        ...presets[preset as keyof typeof presets],
+        ...adjustments
+      }
 
       for (let i = 0; i < data.length; i += 4) {
         // Apply brightness
@@ -98,7 +109,7 @@ export const ImageColorGrading: React.FC<ColorGradingProps> = ({ image, preset, 
 
       onProcessedImageChange(canvas.toDataURL())
     }
-  }, [image, preset, onProcessedImageChange])
+  }, [image, preset, adjustments, onProcessedImageChange])
 
   return <canvas ref={canvasRef} style={{ display: 'none' }} />
 }

@@ -10,16 +10,51 @@ import { cn } from '@/lib/utils'
 import { ImageColorGrading } from './color-grading'
 import Image from 'next/image'
 import SharePolaroid from '@/components/SharePolaroid'
+import { Slider } from "@/components/ui/slider"
 
 const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
 
 const presets = [
-  { name: 'original', label: 'Natural', icon: Camera },
-  { name: 'vintage', label: 'Retro', icon: Sunset },
-  { name: 'blackAndWhite', label: 'Mono', icon: Moon },
-  { name: 'warm', label: 'Sunny', icon: Sun },
-  { name: 'cool', label: 'Fresh', icon: Sparkles },
+  { 
+    name: 'original', 
+    label: 'Natural', 
+    icon: Camera,
+    adjustments: { brightness: 1, contrast: 1, saturation: 1, hue: 0, noise: 0, glare: 0 }
+  },
+  { 
+    name: 'vintage', 
+    label: 'Retro', 
+    icon: Sunset,
+    adjustments: { brightness: 1.1, contrast: 0.9, saturation: 1.2, hue: 15, noise: 0.1, glare: 0.3 }
+  },
+  { 
+    name: 'blackAndWhite', 
+    label: 'Mono', 
+    icon: Moon,
+    adjustments: { brightness: 1, contrast: 1.2, saturation: 0, hue: 0, noise: 0.05, glare: 0 }
+  },
+  { 
+    name: 'warm', 
+    label: 'Sunny', 
+    icon: Sun,
+    adjustments: { brightness: 1.05, contrast: 1.05, saturation: 1.3, hue: 10, noise: 0, glare: 0 }
+  },
+  { 
+    name: 'cool', 
+    label: 'Fresh', 
+    icon: Sparkles,
+    adjustments: { brightness: 1, contrast: 1.05, saturation: 0.9, hue: -10, noise: 0, glare: 0 }
+  },
 ]
+
+interface Adjustments {
+  brightness: number
+  contrast: number
+  saturation: number
+  hue: number
+  noise: number
+  glare: number
+}
 
 export default function PolaroidGenerator() {
   const [image, setImage] = useState<string | null>(null)
@@ -34,6 +69,18 @@ export default function PolaroidGenerator() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const captionRef = useRef<HTMLParagraphElement>(null)
   const [isSharing, setIsSharing] = useState(false)
+  const [adjustments, setAdjustments] = useState<Adjustments>(presets[0].adjustments || {
+    brightness: 1,
+    contrast: 1,
+    saturation: 1,
+    hue: 0,
+    noise: 0,
+    glare: 0
+  })
+
+  useEffect(() => {
+    setAdjustments(selectedPreset.adjustments)
+  }, [selectedPreset])
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -214,6 +261,7 @@ export default function PolaroidGenerator() {
                         <ImageColorGrading
                           image={image}
                           preset={selectedPreset.name}
+                          adjustments={adjustments}
                           onProcessedImageChange={setProcessedImage}
                         />
                       )}
@@ -258,6 +306,34 @@ export default function PolaroidGenerator() {
                     />
                   </div>
                 </div>
+
+                {image && adjustments && (
+                  <div className="mt-6 space-y-4 bg-black/20 backdrop-blur-xl p-4 rounded-xl">
+                    <h3 className="text-white/80 text-sm font-medium mb-4">Adjustments</h3>
+                    <div className="space-y-4">
+                      {Object.entries(adjustments).map(([key, value]) => (
+                        <div key={key} className="space-y-2">
+                          <div className="flex justify-between">
+                            <label className="text-white/60 text-xs capitalize">{key}</label>
+                            <span className="text-white/60 text-xs">{value.toFixed(2)}</span>
+                          </div>
+                          <Slider
+                            value={[value]}
+                            min={key === 'hue' ? -180 : 0}
+                            max={key === 'hue' ? 180 : key === 'brightness' || key === 'contrast' ? 2 : 1}
+                            step={0.01}
+                            onValueChange={([newValue]) => {
+                              setAdjustments(prev => ({
+                                ...prev,
+                                [key]: newValue
+                              }))
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
