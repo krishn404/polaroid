@@ -102,4 +102,3 @@ export const ImageColorGrading: React.FC<ColorGradingProps> = ({ image, preset, 
 
   return <canvas ref={canvasRef} style={{ display: 'none' }} />
 }
-

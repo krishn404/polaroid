@@ -10,9 +10,7 @@ const polaroidData = [
   { src: "/Polaroid1.jpg", caption: "Let's Doodle" },
   { src: "/Polaroid2.jpg", caption: "City nights" },
   { src: "/Polaroid3.jpg", caption: "Perfect Bloom" },
-  { src: "/Polaroid4.jpg", caption: "Sunset session" },
-  { src: "/Polaroid5.jpg", caption: "Street style" },
-  { src: "/Polaroid6.jpg", caption: "Just cruising" }
+  { src: "/Polaroid4.jpg", caption: "Sunset session" }
 ]
 
 // Define a new type that includes initial
