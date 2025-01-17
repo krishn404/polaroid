@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ImageIcon, Download, Camera, Wand2, Frame, Palette, Sliders, Sticker, Type, Sunset, Moon, Sun, Sparkles, Cloud, Rainbow, Stars, Zap } from 'lucide-react'
+import { ImageIcon, Download, Camera, Wand2} from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { Indie_Flower } from 'next/font/google'
 import { cn } from '@/lib/utils'
@@ -15,82 +15,10 @@ import {
   CollapsibleContent,
 } from "@/components/ui/collapsible"
 import BlurredBackground from './BlurredBackground'
+import { tools, type ToolId } from '@/lib/tools'
+import { presets, type Preset, type Adjustments } from '@/lib/presets'
 
 const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
-
-const tools = [
-  { id: 'frames', icon: Frame, label: 'Frames' },
-  { id: 'filters', icon: Palette, label: 'Filters' },
-  { id: 'tweaks', icon: Sliders, label: 'Tweaks' },
-  { id: 'stickers', icon: Sticker, label: 'Stickers' },
-  { id: 'caption', icon: Type, label: 'Caption' }
-]
-
-const presets = [
-  { 
-    name: 'original', 
-    label: 'Natural', 
-    icon: Camera,
-    adjustments: { brightness: 1, contrast: 1, saturation: 1, hue: 0, noise: 0, glare: 0 }
-  },
-  { 
-    name: 'vintage', 
-    label: 'Retro', 
-    icon: Sunset,
-    adjustments: { brightness: 1.1, contrast: 0.9, saturation: 1.2, hue: 15, noise: 0.1, glare: 0.3 }
-  },
-  { 
-    name: 'blackAndWhite', 
-    label: 'Mono', 
-    icon: Moon,
-    adjustments: { brightness: 1, contrast: 1.2, saturation: 0, hue: 0, noise: 0.05, glare: 0 }
-  },
-  { 
-    name: 'warm', 
-    label: 'Sunny', 
-    icon: Sun,
-    adjustments: { brightness: 1.05, contrast: 1.05, saturation: 1.3, hue: 10, noise: 0, glare: 0 }
-  },
-  { 
-    name: 'cool', 
-    label: 'Fresh', 
-    icon: Sparkles,
-    adjustments: { brightness: 1, contrast: 1.05, saturation: 0.9, hue: -10, noise: 0, glare: 0 }
-  },
-  { 
-    name: 'dreamy', 
-    label: 'Dreamy', 
-    icon: Cloud,
-    adjustments: { brightness: 1.1, contrast: 0.85, saturation: 0.9, hue: 5, noise: 0.15, glare: 0.4 }
-  },
-  { 
-    name: 'vibrant', 
-    label: 'Vibrant', 
-    icon: Rainbow,
-    adjustments: { brightness: 1.1, contrast: 1.2, saturation: 1.4, hue: 0, noise: 0, glare: 0.1 }
-  },
-  { 
-    name: 'night', 
-    label: 'Night', 
-    icon: Stars,
-    adjustments: { brightness: 0.9, contrast: 1.1, saturation: 0.8, hue: -15, noise: 0.2, glare: 0.1 }
-  },
-  { 
-    name: 'dramatic', 
-    label: 'Dramatic', 
-    icon: Zap,
-    adjustments: { brightness: 1.05, contrast: 1.3, saturation: 0.9, hue: 0, noise: 0.1, glare: 0.2 }
-  }
-]
-
-interface Adjustments {
-  brightness: number
-  contrast: number
-  saturation: number
-  hue: number
-  noise: number
-  glare: number
-}
 
 export default function PolaroidGenerator() {
   const [image, setImage] = useState<string | null>(null)
@@ -99,7 +27,7 @@ export default function PolaroidGenerator() {
   const [loading, setLoading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [selectedPreset, setSelectedPreset] = useState(presets[0])
-  const [activeTool, setActiveTool] = useState<string | null>(null)
+  const [activeTool, setActiveTool] = useState<ToolId | null>(null)
   const polaroidRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [adjustments, setAdjustments] = useState<Adjustments>(presets[0].adjustments)
@@ -162,11 +90,11 @@ export default function PolaroidGenerator() {
     }
   }
 
-  const handleToolClick = (toolId: string) => {
+  const handleToolClick = (toolId: ToolId) => {
     setActiveTool(activeTool === toolId ? null : toolId)
   }
 
-  const handlePresetChange = (preset: typeof presets[0]) => {
+  const handlePresetChange = (preset: Preset) => {
     setSelectedPreset(preset)
     setAdjustments(preset.adjustments)
   }
