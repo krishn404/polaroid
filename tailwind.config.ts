@@ -55,7 +55,28 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+  		animation: {
+  			'fade-in': 'fadeIn 0.5s ease-out',
+  			'float': 'float 3s ease-in-out infinite',
+  			'floating-gradient': 'floating-gradient 20s ease-in-out infinite',
+  		},
+  		keyframes: {
+  			fadeIn: {
+  				'0%': { opacity: '0', transform: 'translateY(10px)' },
+  				'100%': { opacity: '1', transform: 'translateY(0)' },
+  			},
+  			float: {
+  				'0%, 100%': { transform: 'translateY(0)' },
+  				'50%': { transform: 'translateY(-10px)' },
+  			},
+  			'floating-gradient': {
+  				'0%, 100%': { transform: 'translate(0%, 0%) scale(1.5)' },
+  				'25%': { transform: 'translate(2%, -2%) scale(1.4)' },
+  				'50%': { transform: 'translate(-2%, 2%) scale(1.6)' },
+  				'75%': { transform: 'translate(1%, 1%) scale(1.5)' },
+  			},
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],

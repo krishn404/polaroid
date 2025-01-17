@@ -1,24 +1,25 @@
 import React from 'react'
+import { cn } from '@/lib/utils'
 
 interface BlurredBackgroundProps {
   image: string
+  className?: string
 }
 
-const BlurredBackground: React.FC<BlurredBackgroundProps> = ({ image }) => {
+export default function BlurredBackground({ 
+  image, 
+  className 
+}: BlurredBackgroundProps) {
   return (
-    <div
-      className="fixed inset-0 z-0"
-      style={{
-        backgroundImage: `url(${image})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        filter: 'blur(20px) brightness(0.7)',
-      }}
-    >
-      <div className="absolute inset-0 bg-black opacity-30" />
+    <div className="absolute inset-0 overflow-hidden">
+      <div 
+        className={cn(
+          "absolute inset-[-1%] bg-cover bg-center bg-no-repeat blur-[20px]",
+          className
+        )}
+        style={{ backgroundImage: `url(${image})` }}
+      />
     </div>
   )
 }
-
-export default BlurredBackground
 

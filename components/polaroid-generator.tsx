@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ImageIcon, Download, Camera, Wand2} from 'lucide-react'
+import { ImageIcon} from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { Indie_Flower } from 'next/font/google'
 import { cn } from '@/lib/utils'
@@ -17,6 +17,7 @@ import {
 import BlurredBackground from './BlurredBackground'
 import { tools, type ToolId } from '@/lib/tools'
 import { presets, type Preset, type Adjustments } from '@/lib/presets'
+import BottomNavigation from './BottomNavigation'
 
 const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
 
@@ -119,23 +120,48 @@ export default function PolaroidGenerator() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent">
-      <div className="h-screen flex flex-col">
-        {backgroundImage && <BlurredBackground image={backgroundImage} />}
-        {/* Main Content */}
-        <div className="flex-1 overflow-auto px-4 py-6 relative z-10">
-          <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-black via-black/95 to-black/90">
+      <div className="h-screen flex flex-col [&::-webkit-scrollbar]:hidden">
+        {backgroundImage && (
+          <BlurredBackground 
+            image={backgroundImage} 
+            className="animate-fade-in opacity-60"
+          />
+        )}
+        
+        {/* Main Content - Updated with scrollbar styles */}
+        <div className="flex-1 overflow-auto px-4 py-6 relative z-10 
+          [&::-webkit-scrollbar]:w-2
+          [&::-webkit-scrollbar-track]:bg-white/5
+          [&::-webkit-scrollbar-thumb]:bg-white/10
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          [&::-webkit-scrollbar-thumb]:hover:bg-white/20
+          [&::-webkit-scrollbar-thumb]:transition-colors
+          [&::-webkit-scrollbar-thumb]:duration-200
+          hover:[&::-webkit-scrollbar-thumb]:bg-white/15">
+          <div className="max-w-md mx-auto space-y-6">
+            {/* Header */}
+            <div className="text-center space-y-1 mb-6">
+              <h1 className="text-2xl font-medium bg-gradient-to-r from-white/90 to-white/70 bg-clip-text text-transparent">
+                Polaroid Studio
+              </h1>
+              <p className="text-sm text-white/50">Create beautiful memories</p>
+            </div>
+
             {!image ? (
               <div 
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={cn(
-                  "h-[70vh] transition-all duration-300 ease-in-out",
+                  "h-[70vh] transition-all duration-500 ease-out",
                   "border-2 border-dashed rounded-3xl",
                   "flex items-center justify-center",
-                  "bg-zinc-900",
-                  isDragging ? "border-purple-400 bg-purple-500/20" : "border-white/20 hover:border-white/40"
+                  "bg-gradient-to-b from-white/[0.08] to-white/[0.04]",
+                  "backdrop-blur-xl backdrop-saturate-150",
+                  isDragging 
+                    ? "border-purple-400/50 bg-purple-500/10 scale-[0.99]" 
+                    : "border-white/10 hover:border-white/20 hover:bg-white/[0.07]"
                 )}
               >
                 <div className="text-center space-y-4 p-6">
@@ -169,12 +195,16 @@ export default function PolaroidGenerator() {
                 </div>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-6 animate-fade-in">
                 <div
                   ref={polaroidRef}
-                  className="relative bg-white rounded-2xl transform transition-all duration-300 hover:scale-[1.02]"
+                  className={cn(
+                    "relative bg-white/90 backdrop-blur-xl rounded-2xl",
+                    "transform transition-all duration-500",
+                    "hover:scale-[1.02] hover:shadow-2xl",
+                  )}
                   style={{
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
                   }}
                 >
                   <div className="p-3">
@@ -207,149 +237,135 @@ export default function PolaroidGenerator() {
                 </div>
 
                 {/* Tools Menu */}
-                {image && (
-                  <div className="space-y-4">
-                    {/* Tools Bar */}
-                    <div className="bg-white/5 backdrop-blur-xl rounded-full p-2">
-                      <div className="flex justify-between items-center">
-                        {tools.map((tool) => (
+                <div className="space-y-4">
+                  {/* Tools Bar */}
+                  <div className="bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl rounded-2xl p-3 border border-white/10">
+                    <div className="flex justify-between items-center gap-2">
+                      {tools.map((tool) => (
+                        <Button
+                          key={tool.id}
+                          variant="ghost"
+                          size="icon"
+                          className={cn(
+                            "rounded-xl flex-1 h-14",
+                            "backdrop-blur-xl transition-all duration-300",
+                            "group relative overflow-hidden",
+                            activeTool === tool.id 
+                              ? "bg-white/20 text-white shadow-lg" 
+                              : "text-white/60 hover:text-white hover:bg-white/10"
+                          )}
+                          onClick={() => handleToolClick(tool.id)}
+                        >
+                          <tool.icon className={cn(
+                            "h-5 w-5 transition-transform duration-300",
+                            "group-hover:scale-110"
+                          )} />
+                          <div className={cn(
+                            "absolute inset-0 rounded-xl opacity-0",
+                            "bg-gradient-to-tr from-white/20 to-transparent",
+                            "transition-opacity duration-300",
+                            "group-hover:opacity-100"
+                          )} />
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tool Panels with Enhanced Animations */}
+                  <Collapsible open={activeTool === 'filters'}>
+                    <CollapsibleContent className="bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl rounded-2xl p-4 border border-white/10">
+                      <div className="grid grid-cols-3 gap-3">
+                        {presets.map((preset, index) => (
                           <Button
-                            key={tool.id}
-                            variant="ghost"
-                            size="icon"
+                            key={preset.name}
+                            variant={selectedPreset.name === preset.name ? "default" : "outline"}
+                            onClick={() => handlePresetChange(preset)}
                             className={cn(
-                              "rounded-full",
-                              activeTool === tool.id 
-                                ? "bg-white/20 text-white" 
-                                : "text-white/60 hover:text-white hover:bg-white/10"
+                              "h-24 aspect-[4/5] flex flex-col items-center justify-center gap-2",
+                              "rounded-xl transition-all duration-300",
+                              "group relative overflow-hidden",
+                              "animate-fade-in",
+                              selectedPreset.name === preset.name 
+                                ? "bg-gradient-to-tr from-white/25 to-white/15 text-white shadow-lg" 
+                                : "bg-black/20 border-white/10 text-white/60 hover:bg-white/10"
                             )}
-                            onClick={() => handleToolClick(tool.id)}
+                            style={{
+                              animationDelay: `${index * 50}ms`
+                            }}
                           >
-                            <tool.icon className="h-5 w-5" />
+                            <preset.icon className="h-6 w-6 group-hover:scale-110 transition-transform duration-300" />
+                            <span className="text-sm">{preset.label}</span>
                           </Button>
                         ))}
                       </div>
-                    </div>
+                    </CollapsibleContent>
+                  </Collapsible>
 
-                    {/* Tool Panels */}
-                    <Collapsible open={activeTool === 'frames'}>
-                      <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
-                        <div className="grid grid-cols-3 gap-4">
-                          {['Classic', 'Modern', 'Vintage'].map((frame) => (
-                            <Button
-                              key={frame}
-                              variant="outline"
-                              className="h-24 aspect-[4/5] bg-black/20 border-white/10 text-white/60"
-                            >
-                              {frame}
-                            </Button>
-                          ))}
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
+                  <Collapsible open={activeTool === 'frames'}>
+                    <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
+                      <div className="grid grid-cols-3 gap-4">
+                        {['Classic', 'Modern', 'Vintage'].map((frame) => (
+                          <Button
+                            key={frame}
+                            variant="outline"
+                            className="h-24 aspect-[4/5] bg-black/20 border-white/10 text-white/60"
+                          >
+                            {frame}
+                          </Button>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
 
-                    <Collapsible open={activeTool === 'filters'}>
-                      <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
-                        <div className="grid grid-cols-3 gap-4">
-                          {presets.map((preset) => (
-                            <Button
-                              key={preset.name}
-                              variant={selectedPreset.name === preset.name ? "default" : "outline"}
-                              onClick={() => handlePresetChange(preset)}
-                              className={cn(
-                                "h-24 aspect-[4/5] flex flex-col items-center justify-center gap-2",
-                                selectedPreset.name === preset.name 
-                                  ? "bg-white/20 text-white border-white/20"
-                                  : "bg-black/20 border-white/10 text-white/60"
-                              )}
-                            >
-                              <preset.icon className="h-6 w-6" />
-                              {preset.label}
-                            </Button>
-                          ))}
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
+                  <Collapsible open={activeTool === 'tweaks'}>
+                    <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4 space-y-4">
+                      <TweaksAdjustments
+                        adjustments={tweaksAdjustments}
+                        onChange={handleAdjustmentChange}
+                      />
+                    </CollapsibleContent>
+                  </Collapsible>
 
-                    <Collapsible open={activeTool === 'tweaks'}>
-                      <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4 space-y-4">
-                        <TweaksAdjustments
-                          adjustments={tweaksAdjustments}
-                          onChange={handleAdjustmentChange}
-                        />
-                      </CollapsibleContent>
-                    </Collapsible>
+                  <Collapsible open={activeTool === 'stickers'}>
+                    <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
+                      <div className="grid grid-cols-4 gap-4">
+                        {[1,2,3,4,5,6,7,8].map((i) => (
+                          <Button
+                            key={i}
+                            variant="outline"
+                            className="h-16 aspect-square bg-black/20 border-white/10 text-white/60"
+                          >
+                            {i}
+                          </Button>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
 
-                    <Collapsible open={activeTool === 'stickers'}>
-                      <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
-                        <div className="grid grid-cols-4 gap-4">
-                          {[1,2,3,4,5,6,7,8].map((i) => (
-                            <Button
-                              key={i}
-                              variant="outline"
-                              className="h-16 aspect-square bg-black/20 border-white/10 text-white/60"
-                            >
-                              {i}
-                            </Button>
-                          ))}
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-
-                    <Collapsible open={activeTool === 'caption'}>
-                      <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
-                        <Input
-                          type="text"
-                          value={caption}
-                          onChange={(e) => setCaption(e.target.value)}
-                          placeholder="Add a caption..."
-                          maxLength={50}
-                          className="bg-black/20 border-white/10 text-white placeholder:text-white/40"
-                        />
-                      </CollapsibleContent>
-                    </Collapsible>
-                  </div>
-                )}
+                  <Collapsible open={activeTool === 'caption'}>
+                    <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
+                      <Input
+                        type="text"
+                        value={caption}
+                        onChange={(e) => setCaption(e.target.value)}
+                        placeholder="Add a caption..."
+                        maxLength={50}
+                        className="bg-black/20 border-white/10 text-white placeholder:text-white/40"
+                      />
+                    </CollapsibleContent>
+                  </Collapsible>
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Bottom Navigation */}
-        <div className="px-6 py-4 bg-zinc-900/80 backdrop-blur-xl border-t border-white/10">
-          <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-around">
-              <Button
-                variant="ghost"
-                size="lg"
-                className="flex-col gap-1 text-white/60 hover:text-black"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Wand2 className="h-6 w-6" />
-                <span className="text-xs">Try On</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                className="flex-col gap-1 text-white/60 hover:text-black"
-                onClick={downloadImage}
-                disabled={!image || loading}
-              >
-                <Download className="h-6 w-6" />
-                <span className="text-xs">Download</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                className="flex-col gap-1 text-white/60 hover:text-black"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Camera className="h-6 w-6" />
-                <span className="text-xs">Camera</span>
-              </Button>
-            </div>
-          </div>
-        </div>
+        <BottomNavigation
+          image={image}
+          loading={loading}
+          onDownload={downloadImage}
+          onFileInputClick={() => fileInputRef.current?.click()}
+        />
       </div>
     </div>
   )
