@@ -3,48 +3,34 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, ImageIcon, X, Camera, Sunset, Moon, Sun, Sparkles } from 'lucide-react'
+import { ImageIcon, Download, Camera, Wand2, Frame, Palette, Sliders, Sticker, Type } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { Indie_Flower } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import { ImageColorGrading } from './color-grading'
 import Image from 'next/image'
-import SharePolaroid from '@/components/SharePolaroid'
 import { Slider } from "@/components/ui/slider"
+import {
+  Collapsible,
+  CollapsibleContent,
+} from "@/components/ui/collapsible"
 
 const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
 
+const tools = [
+  { id: 'frames', icon: Frame, label: 'Frames' },
+  { id: 'filters', icon: Palette, label: 'Filters' },
+  { id: 'tweaks', icon: Sliders, label: 'Tweaks' },
+  { id: 'stickers', icon: Sticker, label: 'Stickers' },
+  { id: 'caption', icon: Type, label: 'Caption' }
+]
+
 const presets = [
-  { 
-    name: 'original', 
-    label: 'Natural', 
-    icon: Camera,
-    adjustments: { brightness: 1, contrast: 1, saturation: 1, hue: 0, noise: 0, glare: 0 }
-  },
-  { 
-    name: 'vintage', 
-    label: 'Retro', 
-    icon: Sunset,
-    adjustments: { brightness: 1.1, contrast: 0.9, saturation: 1.2, hue: 15, noise: 0.1, glare: 0.3 }
-  },
-  { 
-    name: 'blackAndWhite', 
-    label: 'Mono', 
-    icon: Moon,
-    adjustments: { brightness: 1, contrast: 1.2, saturation: 0, hue: 0, noise: 0.05, glare: 0 }
-  },
-  { 
-    name: 'warm', 
-    label: 'Sunny', 
-    icon: Sun,
-    adjustments: { brightness: 1.05, contrast: 1.05, saturation: 1.3, hue: 10, noise: 0, glare: 0 }
-  },
-  { 
-    name: 'cool', 
-    label: 'Fresh', 
-    icon: Sparkles,
-    adjustments: { brightness: 1, contrast: 1.05, saturation: 0.9, hue: -10, noise: 0, glare: 0 }
-  },
+  { name: 'original', label: 'Natural' },
+  { name: 'vintage', label: 'Retro' },
+  { name: 'blackAndWhite', label: 'Mono' },
+  { name: 'warm', label: 'Sunny' },
+  { name: 'cool', label: 'Fresh' },
 ]
 
 interface Adjustments {
@@ -60,16 +46,13 @@ export default function PolaroidGenerator() {
   const [image, setImage] = useState<string | null>(null)
   const [processedImage, setProcessedImage] = useState<string | null>(null)
   const [caption, setCaption] = useState('')
-  const [captionPosition, setCaptionPosition] = useState({ x: 50, y: 85 })
-  const [isDraggingCaption, setIsDraggingCaption] = useState(false)
   const [loading, setLoading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [selectedPreset, setSelectedPreset] = useState(presets[0])
+  const [activeTool, setActiveTool] = useState<string | null>(null)
   const polaroidRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const captionRef = useRef<HTMLParagraphElement>(null)
-  const [isSharing, setIsSharing] = useState(false)
-  const [adjustments, setAdjustments] = useState<Adjustments>(presets[0].adjustments || {
+  const [adjustments, setAdjustments] = useState<Adjustments>({
     brightness: 1,
     contrast: 1,
     saturation: 1,
@@ -77,10 +60,6 @@ export default function PolaroidGenerator() {
     noise: 0,
     glare: 0
   })
-
-  useEffect(() => {
-    setAdjustments(selectedPreset.adjustments)
-  }, [selectedPreset])
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -137,32 +116,8 @@ export default function PolaroidGenerator() {
     }
   }
 
-  const clearImage = () => {
-    setImage(null)
-    setProcessedImage(null)
-    setCaption('')
-    setCaptionPosition({ x: 50, y: 85 })
-    setSelectedPreset(presets[0])
-  }
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (captionRef.current && captionRef.current.contains(e.target as Node)) {
-      setIsDraggingCaption(true)
-      e.stopPropagation()
-    }
-  }
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDraggingCaption && polaroidRef.current) {
-      const rect = polaroidRef.current.getBoundingClientRect()
-      const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
-      const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100))
-      setCaptionPosition({ x, y })
-    }
-  }
-
-  const handleMouseUp = () => {
-    setIsDraggingCaption(false)
+  const handleToolClick = (toolId: string) => {
+    setActiveTool(activeTool === toolId ? null : toolId)
   }
 
   useEffect(() => {
@@ -171,22 +126,11 @@ export default function PolaroidGenerator() {
     }
   }, [image])
 
-  useEffect(() => {
-    document.addEventListener('mouseup', handleMouseUp)
-    return () => {
-      document.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [])
-
   return (
-    <div 
-      className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-    >
+    <div className="min-h-screen bg-black">
       <div className="h-screen flex flex-col">
         {/* Main Content */}
-        <div 
-          className="flex-1 overflow-auto px-4 py-6"
-        >
+        <div className="flex-1 overflow-auto px-4 py-6">
           <div className="max-w-md mx-auto">
             {!image ? (
               <div 
@@ -197,13 +141,13 @@ export default function PolaroidGenerator() {
                   "h-[70vh] transition-all duration-300 ease-in-out",
                   "border-2 border-dashed rounded-3xl",
                   "flex items-center justify-center",
-                  "backdrop-blur-xl bg-white/10",
+                  "bg-zinc-900",
                   isDragging ? "border-purple-400 bg-purple-500/20" : "border-white/20 hover:border-white/40"
                 )}
               >
                 <div className="text-center space-y-4 p-6">
                   <div className="flex justify-center">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-400/20 to-pink-400/20 backdrop-blur-xl flex items-center justify-center">
+                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center">
                       <ImageIcon className="h-10 w-10 text-white/80" />
                     </div>
                   </div>
@@ -217,9 +161,8 @@ export default function PolaroidGenerator() {
                     <Button
                       variant="outline"
                       onClick={() => fileInputRef.current?.click()}
-                      className="mt-2 border-white/20 bg-black text-white/80 hover:bg-white"
+                      className="mt-2 border-white/20 bg-white/5 text-white/80 hover:bg-white/10"
                     >
-                      <ImageIcon className="w-4 h-4 mr-2" />
                       Choose Photo
                     </Button>
                     <Input
@@ -233,30 +176,16 @@ export default function PolaroidGenerator() {
                 </div>
               </div>
             ) : (
-              <div 
-                className="relative"
-              >
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="absolute -right-2 -top-2 rounded-full z-10 bg-black/40 border-white/20 text-white/80 hover:bg-black/60"
-                  onClick={clearImage}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+              <div className="space-y-6">
                 <div
                   ref={polaroidRef}
                   className="relative bg-white rounded-2xl transform transition-all duration-300 hover:scale-[1.02]"
                   style={{
                     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
                   }}
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
                 >
                   <div className="p-3">
-                    <div 
-                      className="aspect-[4/5] relative overflow-hidden rounded-xl"
-                    >
+                    <div className="aspect-[4/5] relative overflow-hidden rounded-xl">
                       {image && (
                         <ImageColorGrading
                           image={image}
@@ -267,25 +196,16 @@ export default function PolaroidGenerator() {
                       )}
                       {processedImage && (
                         <Image
-                          src={processedImage}
+                          src={processedImage || "/placeholder.svg"}
                           alt="Processed image"
-                          layout="fill"
-                          objectFit="cover"
+                          fill
+                          className="object-cover"
                         />
                       )}
                     </div>
                     <div className="h-16 flex items-center justify-center mt-2 relative">
                       {caption && (
-                        <p
-                          ref={captionRef}
-                          className={`absolute text-center text-xl text-gray-800 leading-tight cursor-move ${indieFlower.className}`}
-                          style={{
-                            left: `${captionPosition.x}%`,
-                            top: `${captionPosition.y}%`,
-                            transform: 'translate(-50%, -50%) rotate(-2deg)',
-                            textShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)',
-                          }}
-                        >
+                        <p className={`text-center text-xl text-gray-800 leading-tight ${indieFlower.className}`}>
                           {caption}
                         </p>
                       )}
@@ -293,45 +213,123 @@ export default function PolaroidGenerator() {
                   </div>
                 </div>
 
-                {/* Caption Input */}
-                <div className="mt-6 space-y-4">
-                  <div className="relative">
-                    <Input
-                      type="text"
-                      value={caption}
-                      onChange={(e) => setCaption(e.target.value)}
-                      placeholder="Add a caption..."
-                      maxLength={50}
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl backdrop-blur-xl"
-                    />
-                  </div>
-                </div>
-
-                {image && adjustments && (
-                  <div className="mt-6 space-y-4 bg-black/20 backdrop-blur-xl p-4 rounded-xl">
-                    <h3 className="text-white/80 text-sm font-medium mb-4">Adjustments</h3>
-                    <div className="space-y-4">
-                      {Object.entries(adjustments).map(([key, value]) => (
-                        <div key={key} className="space-y-2">
-                          <div className="flex justify-between">
-                            <label className="text-white/60 text-xs capitalize">{key}</label>
-                            <span className="text-white/60 text-xs">{value.toFixed(2)}</span>
-                          </div>
-                          <Slider
-                            value={[value]}
-                            min={key === 'hue' ? -180 : 0}
-                            max={key === 'hue' ? 180 : key === 'brightness' || key === 'contrast' ? 2 : 1}
-                            step={0.01}
-                            onValueChange={([newValue]) => {
-                              setAdjustments(prev => ({
-                                ...prev,
-                                [key]: newValue
-                              }))
-                            }}
-                          />
-                        </div>
-                      ))}
+                {/* Tools Menu */}
+                {image && (
+                  <div className="space-y-4">
+                    {/* Tools Bar */}
+                    <div className="bg-white/5 backdrop-blur-xl rounded-full p-2">
+                      <div className="flex justify-between items-center">
+                        {tools.map((tool) => (
+                          <Button
+                            key={tool.id}
+                            variant="ghost"
+                            size="icon"
+                            className={cn(
+                              "rounded-full",
+                              activeTool === tool.id 
+                                ? "bg-white/20 text-white" 
+                                : "text-white/60 hover:text-white hover:bg-white/10"
+                            )}
+                            onClick={() => handleToolClick(tool.id)}
+                          >
+                            <tool.icon className="h-5 w-5" />
+                          </Button>
+                        ))}
+                      </div>
                     </div>
+
+                    {/* Tool Panels */}
+                    <Collapsible open={activeTool === 'frames'}>
+                      <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
+                        <div className="grid grid-cols-3 gap-4">
+                          {['Classic', 'Modern', 'Vintage'].map((frame) => (
+                            <Button
+                              key={frame}
+                              variant="outline"
+                              className="h-24 aspect-[4/5] bg-black/20 border-white/10 text-white/60"
+                            >
+                              {frame}
+                            </Button>
+                          ))}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+
+                    <Collapsible open={activeTool === 'filters'}>
+                      <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
+                        <div className="grid grid-cols-3 gap-4">
+                          {presets.map((preset) => (
+                            <Button
+                              key={preset.name}
+                              variant={selectedPreset.name === preset.name ? "default" : "outline"}
+                              onClick={() => setSelectedPreset(preset)}
+                              className={cn(
+                                "h-24 aspect-[4/5]",
+                                selectedPreset.name === preset.name 
+                                  ? "bg-white/20 text-white border-white/20"
+                                  : "bg-black/20 border-white/10 text-white/60"
+                              )}
+                            >
+                              {preset.label}
+                            </Button>
+                          ))}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+
+                    <Collapsible open={activeTool === 'tweaks'}>
+                      <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4 space-y-4">
+                        {Object.entries(adjustments).map(([key, value]) => (
+                          <div key={key} className="space-y-2">
+                            <div className="flex justify-between">
+                              <label className="text-white/60 text-xs capitalize">{key}</label>
+                              <span className="text-white/60 text-xs">{value.toFixed(2)}</span>
+                            </div>
+                            <Slider
+                              value={[value]}
+                              min={key === 'hue' ? -180 : 0}
+                              max={key === 'hue' ? 180 : key === 'brightness' || key === 'contrast' ? 2 : 1}
+                              step={0.01}
+                              onValueChange={([newValue]) => {
+                                setAdjustments(prev => ({
+                                  ...prev,
+                                  [key]: newValue
+                                }))
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+
+                    <Collapsible open={activeTool === 'stickers'}>
+                      <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
+                        <div className="grid grid-cols-4 gap-4">
+                          {[1,2,3,4,5,6,7,8].map((i) => (
+                            <Button
+                              key={i}
+                              variant="outline"
+                              className="h-16 aspect-square bg-black/20 border-white/10 text-white/60"
+                            >
+                              {i}
+                            </Button>
+                          ))}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+
+                    <Collapsible open={activeTool === 'caption'}>
+                      <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
+                        <Input
+                          type="text"
+                          value={caption}
+                          onChange={(e) => setCaption(e.target.value)}
+                          placeholder="Add a caption..."
+                          maxLength={50}
+                          className="bg-black/20 border-white/10 text-white placeholder:text-white/40"
+                        />
+                      </CollapsibleContent>
+                    </Collapsible>
                   </div>
                 )}
               </div>
@@ -340,59 +338,37 @@ export default function PolaroidGenerator() {
         </div>
 
         {/* Bottom Navigation */}
-        <div 
-          className="px-6 py-4 bg-black/20 backdrop-blur-xl"
-        >
+        <div className="px-6 py-4 bg-zinc-900/80 backdrop-blur-xl border-t border-white/10">
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-around">
-              {presets.map((preset) => (
-                <div
-                  key={preset.name}
-                  className={cn(
-                    "flex flex-col items-center gap-1",
-                    "transition-all duration-200"
-                  )}
-                  onClick={() => setSelectedPreset(preset)}
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "rounded-full w-12 h-12 backdrop-blur-sm",
-                      selectedPreset.name === preset.name
-                        ? "bg-purple-500/20 text-white"
-                        : "bg-white/10 text-white/60 hover:bg-white/20"
-                    )}
-                  >
-                    <preset.icon className="w-5 h-5" />
-                  </Button>
-                  <span className="text-xs text-white/60">
-                    {preset.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 flex justify-center gap-4">
               <Button
+                variant="ghost"
+                size="lg"
+                className="flex-col gap-1 text-white/60 hover:text-white"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Wand2 className="h-6 w-6" />
+                <span className="text-xs">Try On</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                className="flex-col gap-1 text-white/60 hover:text-white"
                 onClick={downloadImage}
                 disabled={!image || loading}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full px-8"
               >
-                {loading ? (
-                  'Processing...'
-                ) : (
-                  <>
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </>
-                )}
+                <Download className="h-6 w-6" />
+                <span className="text-xs">Download</span>
               </Button>
-              <SharePolaroid
-                polaroidRef={polaroidRef}
-                isLoading={isSharing}
-                setIsLoading={setIsSharing}
-              />
-              
+              <Button
+                variant="ghost"
+                size="lg"
+                className="flex-col gap-1 text-white/60 hover:text-white"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Camera className="h-6 w-6" />
+                <span className="text-xs">Camera</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -400,3 +376,4 @@ export default function PolaroidGenerator() {
     </div>
   )
 }
+
