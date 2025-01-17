@@ -394,7 +394,7 @@ export default function PolaroidGenerator() {
               <Button
                 variant="ghost"
                 size="lg"
-                className="flex-col gap-1 text-white/60 hover:text-white"
+                className="flex-col gap-1 text-white/60 hover:text-black"
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Wand2 className="h-6 w-6" />
@@ -403,7 +403,7 @@ export default function PolaroidGenerator() {
               <Button
                 variant="ghost"
                 size="lg"
-                className="flex-col gap-1 text-white/60 hover:text-white"
+                className="flex-col gap-1 text-white/60 hover:text-black"
                 onClick={downloadImage}
                 disabled={!image || loading}
               >
@@ -413,7 +413,7 @@ export default function PolaroidGenerator() {
               <Button
                 variant="ghost"
                 size="lg"
-                className="flex-col gap-1 text-white/60 hover:text-white"
+                className="flex-col gap-1 text-white/60 hover:text-black"
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Camera className="h-6 w-6" />
