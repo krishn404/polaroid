@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ImageIcon} from 'lucide-react'
+import { ImageIcon } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { Indie_Flower } from 'next/font/google'
 import { cn } from '@/lib/utils'
@@ -121,7 +121,7 @@ export default function PolaroidGenerator() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-black/95 to-black/90">
-      <div className="h-screen flex flex-col [&::-webkit-scrollbar]:hidden">
+      <div className="h-screen flex flex-col lg:flex-row lg:overflow-hidden lg:gap-8 lg:p-8">
         {backgroundImage && (
           <BlurredBackground 
             image={backgroundImage} 
@@ -129,115 +129,122 @@ export default function PolaroidGenerator() {
           />
         )}
         
-        {/* Main Content - Updated with scrollbar styles */}
-        <div className="flex-1 overflow-auto px-4 py-6 relative z-10 
-          [&::-webkit-scrollbar]:w-2
-          [&::-webkit-scrollbar-track]:bg-white/5
-          [&::-webkit-scrollbar-thumb]:bg-white/10
-          [&::-webkit-scrollbar-thumb]:rounded-full
-          [&::-webkit-scrollbar-thumb]:hover:bg-white/20
-          [&::-webkit-scrollbar-thumb]:transition-colors
-          [&::-webkit-scrollbar-thumb]:duration-200
-          hover:[&::-webkit-scrollbar-thumb]:bg-white/15">
-          <div className="max-w-md mx-auto space-y-6">
-            {/* Header */}
-            <div className="text-center space-y-1 mb-6">
-              <h1 className="text-2xl font-medium bg-gradient-to-r from-white/90 to-white/70 bg-clip-text text-transparent">
-                Polaroid Studio
-              </h1>
-              <p className="text-sm text-white/50">Create beautiful memories</p>
+        {/* Main Content */}
+        <div className="flex-1 overflow-auto px-4 py-6 relative z-10 lg:flex lg:items-center lg:justify-center">
+          <div className="max-w-md mx-auto space-y-6 lg:max-w-none lg:w-full lg:flex lg:items-center lg:justify-center lg:gap-16 lg:px-4">
+            {/* Left side - Polaroid preview */}
+            <div className={cn(
+              "lg:flex-1 lg:flex lg:justify-end",
+              image ? "lg:max-w-xl" : "lg:max-w-2xl"
+            )}>
+              {/* Header - Only show on mobile */}
+              <div className="text-center space-y-1 mb-6 lg:hidden">
+                <h1 className="text-2xl font-medium bg-gradient-to-r from-white/90 to-white/70 bg-clip-text text-transparent">
+                  Polaroid Studio
+                </h1>
+                <p className="text-sm text-white/50">Create beautiful memories</p>
+              </div>
+
+              {!image ? (
+                <div 
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={cn(
+                    "h-[70vh] transition-all duration-500 ease-out",
+                    "border-2 border-dashed rounded-3xl",
+                    "flex items-center justify-center",
+                    "bg-gradient-to-b from-white/[0.08] to-white/[0.04]",
+                    "backdrop-blur-xl backdrop-saturate-150",
+                    "lg:flex-1 lg:max-w-2xl lg:mx-auto",
+                    isDragging 
+                      ? "border-purple-400/50 bg-purple-500/10 scale-[0.99]" 
+                      : "border-white/10 hover:border-white/20 hover:bg-white/[0.07]"
+                  )}
+                >
+                  <div className="text-center space-y-4 p-6">
+                    <div className="flex justify-center">
+                      <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center">
+                        <ImageIcon className="h-10 w-10 text-white/80" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-lg font-medium text-white/80">
+                        Drag and drop your image here
+                      </p>
+                      <p className="text-sm text-white/60">
+                        or
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="mt-2 border-white/20 bg-white/5 text-white/80 hover:bg-white/10"
+                      >
+                        Choose Photo
+                      </Button>
+                      <Input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Polaroid Image - Adjusted for desktop */}
+                  <div className="space-y-6 animate-fade-in lg:w-[400px]">
+                    <div
+                      ref={polaroidRef}
+                      className={cn(
+                        "relative bg-white/90 backdrop-blur-xl rounded-2xl",
+                        "transform transition-all duration-500",
+                        "hover:scale-[1.02] hover:shadow-2xl"
+                      )}
+                      style={{
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                      }}
+                    >
+                      <div className="p-3">
+                        <div className="aspect-[4/5] relative overflow-hidden rounded-xl">
+                          {image && (
+                            <ImageColorGrading
+                              image={image}
+                              preset={selectedPreset.name}
+                              adjustments={adjustments}
+                              onProcessedImageChange={setProcessedImage}
+                            />
+                          )}
+                          {processedImage && (
+                            <Image
+                              src={processedImage || "/placeholder.svg"}
+                              alt="Processed image"
+                              fill
+                              className="object-cover"
+                            />
+                          )}
+                        </div>
+                        <div className="h-16 flex items-center justify-center mt-2 relative">
+                          {caption && (
+                            <p className={`text-center text-xl text-gray-800 leading-tight ${indieFlower.className}`}>
+                              {caption}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
-            {!image ? (
-              <div 
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={cn(
-                  "h-[70vh] transition-all duration-500 ease-out",
-                  "border-2 border-dashed rounded-3xl",
-                  "flex items-center justify-center",
-                  "bg-gradient-to-b from-white/[0.08] to-white/[0.04]",
-                  "backdrop-blur-xl backdrop-saturate-150",
-                  isDragging 
-                    ? "border-purple-400/50 bg-purple-500/10 scale-[0.99]" 
-                    : "border-white/10 hover:border-white/20 hover:bg-white/[0.07]"
-                )}
-              >
-                <div className="text-center space-y-4 p-6">
-                  <div className="flex justify-center">
-                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center">
-                      <ImageIcon className="h-10 w-10 text-white/80" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-lg font-medium text-white/80">
-                      Drag and drop your image here
-                    </p>
-                    <p className="text-sm text-white/60">
-                      or
-                    </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="mt-2 border-white/20 bg-white/5 text-white/80 hover:bg-white/10"
-                    >
-                      Choose Photo
-                    </Button>
-                    <Input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6 animate-fade-in">
-                <div
-                  ref={polaroidRef}
-                  className={cn(
-                    "relative bg-white/90 backdrop-blur-xl rounded-2xl",
-                    "transform transition-all duration-500",
-                    "hover:scale-[1.02] hover:shadow-2xl",
-                  )}
-                  style={{
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                  }}
-                >
-                  <div className="p-3">
-                    <div className="aspect-[4/5] relative overflow-hidden rounded-xl">
-                      {image && (
-                        <ImageColorGrading
-                          image={image}
-                          preset={selectedPreset.name}
-                          adjustments={adjustments}
-                          onProcessedImageChange={setProcessedImage}
-                        />
-                      )}
-                      {processedImage && (
-                        <Image
-                          src={processedImage || "/placeholder.svg"}
-                          alt="Processed image"
-                          fill
-                          className="object-cover"
-                        />
-                      )}
-                    </div>
-                    <div className="h-16 flex items-center justify-center mt-2 relative">
-                      {caption && (
-                        <p className={`text-center text-xl text-gray-800 leading-tight ${indieFlower.className}`}>
-                          {caption}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
+            {image && (
+              /* Right side - Tools */
+              <div className="lg:w-[400px]">
                 {/* Tools Menu */}
-                <div className="space-y-4">
+                <div className="space-y-4 lg:bg-white/5 lg:backdrop-blur-xl lg:rounded-3xl lg:p-6">
                   {/* Tools Bar */}
                   <div className="bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl rounded-2xl p-3 border border-white/10">
                     <div className="flex justify-between items-center gap-2">
@@ -360,12 +367,15 @@ export default function PolaroidGenerator() {
           </div>
         </div>
 
-        <BottomNavigation
-          image={image}
-          loading={loading}
-          onDownload={downloadImage}
-          onFileInputClick={() => fileInputRef.current?.click()}
-        />
+        {/* Bottom Navigation */}
+        <div className="lg:fixed lg:bottom-0 lg:left-0 lg:right-0 lg:z-20">
+          <BottomNavigation
+            image={image}
+            loading={loading}
+            onDownload={downloadImage}
+            onFileInputClick={() => fileInputRef.current?.click()}
+          />
+        </div>
       </div>
     </div>
   )

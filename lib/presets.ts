@@ -1,4 +1,4 @@
-import { Camera, Sunset, Moon, Sun, Sparkles, Cloud, Rainbow, Stars, Zap, LucideIcon } from 'lucide-react'
+import { Camera, Sunset, Moon, Sun, Sparkles, Cloud, Rainbow, Stars, Zap, type LucideIcon, Droplet, Flower2, Mountain, Leaf, Snowflake } from 'lucide-react'
 
 export interface Adjustments {
   brightness: number
@@ -70,5 +70,36 @@ export const presets: Preset[] = [
     label: 'Dramatic', 
     icon: Zap,
     adjustments: { brightness: 1.05, contrast: 1.3, saturation: 0.9, hue: 0, noise: 0.1, glare: 0.2 }
+  },
+  { 
+    name: 'sepia', 
+    label: 'Sepia', 
+    icon: Droplet,
+    adjustments: { brightness: 1.1, contrast: 1.1, saturation: 0.8, hue: 30, noise: 0.05, glare: 0.1 }
+  },
+  { 
+    name: 'spring', 
+    label: 'Spring', 
+    icon: Flower2,
+    adjustments: { brightness: 1.05, contrast: 1, saturation: 1.2, hue: -10, noise: 0, glare: 0.2 }
+  },
+  { 
+    name: 'autumn', 
+    label: 'Autumn', 
+    icon: Leaf,
+    adjustments: { brightness: 1, contrast: 1.1, saturation: 1.3, hue: 20, noise: 0.05, glare: 0.1 }
+  },
+  { 
+    name: 'winter', 
+    label: 'Winter', 
+    icon: Snowflake,
+    adjustments: { brightness: 1.1, contrast: 0.9, saturation: 0.7, hue: -15, noise: 0.1, glare: 0.3 }
+  },
+  { 
+    name: 'hdr', 
+    label: 'HDR', 
+    icon: Mountain,
+    adjustments: { brightness: 1.1, contrast: 1.3, saturation: 1.2, hue: 0, noise: 0, glare: 0.2 }
   }
-] 
+]
+
