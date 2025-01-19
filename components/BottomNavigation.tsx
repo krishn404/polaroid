@@ -7,13 +7,15 @@ interface BottomNavigationProps {
   loading: boolean
   onDownload: () => void
   onFileInputClick: () => void
+  onCameraClick: () => void
 }
 
 export default function BottomNavigation({ 
   image, 
   loading, 
   onDownload, 
-  onFileInputClick 
+  onFileInputClick,
+  onCameraClick 
 }: BottomNavigationProps) {
   return (
     <div className="px-6 py-4 backdrop-blur-2xl border-t border-white/10 lg:border-none lg:bg-transparent">
@@ -28,11 +30,15 @@ export default function BottomNavigation({
                 action === 'Download' ? "rounded-[30px]" : "rounded-full",
                 action !== 'Download' && "bg-zinc-900",
                 action === 'Download' && "bg-gradient-to-r from-pink-500 to-purple-500",
-                "text-white/60 hover:text-white",
+                "text-white/60 hover:text-black",
                 "transition-all duration-300",
                 "group relative overflow-hidden"
               )}
-              onClick={action === 'Download' ? onDownload : onFileInputClick}
+              onClick={() => {
+                if (action === 'Download') onDownload()
+                else if (action === 'Camera') onCameraClick()
+                else onFileInputClick()
+              }}
               disabled={action === 'Download' && (!image || loading)}
             >
               <div className="flex flex-col gap-1 items-center relative z-10 lg:flex-row lg:gap-2">

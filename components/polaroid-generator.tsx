@@ -18,6 +18,7 @@ import BlurredBackground from './BlurredBackground'
 import { tools, type ToolId } from '@/lib/tools'
 import { presets, type Preset, type Adjustments } from '@/lib/presets'
 import BottomNavigation from './BottomNavigation'
+import CameraCapture from './CameraCapture'
 
 const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
 
@@ -33,6 +34,7 @@ export default function PolaroidGenerator() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [adjustments, setAdjustments] = useState<Adjustments>(presets[0].adjustments)
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null)
+  const [isCameraOpen, setIsCameraOpen] = useState(false)
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -104,6 +106,11 @@ export default function PolaroidGenerator() {
     setAdjustments(prev => ({ ...prev, [key]: value }))
   }
 
+  const handleCameraCapture = (imageData: string) => {
+    setImage(imageData)
+    setBackgroundImage(imageData)
+  }
+
   useEffect(() => {
     if (image) {
       setProcessedImage(image)
@@ -121,6 +128,13 @@ export default function PolaroidGenerator() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-black/95 to-black/90">
+      {isCameraOpen && (
+        <CameraCapture
+          onCapture={handleCameraCapture}
+          onClose={() => setIsCameraOpen(false)}
+        />
+      )}
+      
       <div className="h-screen flex flex-col lg:flex-row lg:overflow-hidden lg:gap-8 lg:p-8">
         {backgroundImage && (
           <BlurredBackground 
@@ -175,13 +189,16 @@ export default function PolaroidGenerator() {
                       <p className="text-sm text-white/60">
                         or
                       </p>
-                      <Button
-                        variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="mt-2 border-white/20 bg-white/5 text-white/80 hover:bg-white/10"
-                      >
-                        Choose Photo
-                      </Button>
+                      <div className="flex gap-2 justify-center">
+                        <Button
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="mt-2 border-white/20 bg-white/5 text-white/80 hover:bg-white/10"
+                        >
+                          Choose Photo
+                        </Button>
+                        
+                      </div>
                       <Input
                         ref={fileInputRef}
                         type="file"
@@ -308,7 +325,7 @@ export default function PolaroidGenerator() {
                     </CollapsibleContent>
                   </Collapsible>
 
-                  <Collapsible open={activeTool === 'frames'}>
+                  {/* <Collapsible open={activeTool === 'frames'}>
                     <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
                       <div className="grid grid-cols-3 gap-4">
                         {['Classic', 'Modern', 'Vintage'].map((frame) => (
@@ -322,7 +339,7 @@ export default function PolaroidGenerator() {
                         ))}
                       </div>
                     </CollapsibleContent>
-                  </Collapsible>
+                  </Collapsible> */}
 
                   <Collapsible open={activeTool === 'tweaks'}>
                     <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4 space-y-4">
@@ -374,6 +391,7 @@ export default function PolaroidGenerator() {
             loading={loading}
             onDownload={downloadImage}
             onFileInputClick={() => fileInputRef.current?.click()}
+            onCameraClick={() => setIsCameraOpen(true)}
           />
         </div>
       </div>
