@@ -19,8 +19,17 @@ import { tools, type ToolId } from '@/lib/tools'
 import { presets, type Preset, type Adjustments } from '@/lib/presets'
 import BottomNavigation from './BottomNavigation'
 import CameraCapture from './CameraCapture'
+import StickerGallery from './StickerGallery'
+import DraggableSticker from './DraggableSticker'
 
 const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
+
+interface Sticker {
+  id: string;
+  url: string;
+  name: string;
+  position?: { x: number; y: number };
+}
 
 export default function PolaroidGenerator() {
   const [image, setImage] = useState<string | null>(null)
@@ -35,6 +44,7 @@ export default function PolaroidGenerator() {
   const [adjustments, setAdjustments] = useState<Adjustments>(presets[0].adjustments)
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null)
   const [isCameraOpen, setIsCameraOpen] = useState(false)
+  const [stickers, setStickers] = useState<Sticker[]>([])
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -109,6 +119,22 @@ export default function PolaroidGenerator() {
   const handleCameraCapture = (imageData: string) => {
     setImage(imageData)
     setBackgroundImage(imageData)
+  }
+
+  const handleStickerSelect = (stickerUrl: string, stickerId: string, stickerName: string) => {
+    setStickers(prev => [
+      ...prev,
+      {
+        id: `${stickerId}-${Date.now()}`,
+        url: stickerUrl,
+        name: stickerName,
+        position: { x: 0, y: 0 }
+      }
+    ])
+  }
+
+  const handleStickerRemove = (stickerId: string) => {
+    setStickers(prev => prev.filter(sticker => sticker.id !== stickerId))
   }
 
   useEffect(() => {
@@ -225,7 +251,7 @@ export default function PolaroidGenerator() {
                       }}
                     >
                       <div className="p-3">
-                        <div className="aspect-[4/5] relative overflow-hidden rounded-xl">
+                        <div className="relative aspect-[4/5] overflow-hidden rounded-xl">
                           {image && (
                             <ImageColorGrading
                               image={image}
@@ -242,6 +268,17 @@ export default function PolaroidGenerator() {
                               className="object-cover"
                             />
                           )}
+                          {/* Add stickers layer */}
+                          <div className="absolute inset-0">
+                            {stickers.map((sticker) => (
+                              <DraggableSticker
+                                key={sticker.id}
+                                url={sticker.url}
+                                name={sticker.name}
+                                onRemove={() => handleStickerRemove(sticker.id)}
+                              />
+                            ))}
+                          </div>
                         </div>
                         <div className="h-16 flex items-center justify-center mt-2 relative">
                           {caption && (
@@ -352,17 +389,9 @@ export default function PolaroidGenerator() {
 
                   <Collapsible open={activeTool === 'stickers'}>
                     <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
-                      <div className="grid grid-cols-4 gap-4">
-                        {[1,2,3,4,5,6,7,8].map((i) => (
-                          <Button
-                            key={i}
-                            variant="outline"
-                            className="h-16 aspect-square bg-black/20 border-white/10 text-white/60"
-                          >
-                            {i}
-                          </Button>
-                        ))}
-                      </div>
+                      <StickerGallery
+                        onSelect={(url, id, name) => handleStickerSelect(url, id, name)}
+                      />
                     </CollapsibleContent>
                   </Collapsible>
 

@@ -4,7 +4,8 @@ const nextConfig = {
       remotePatterns: [
         {
           protocol: 'https',
-          hostname: '**',
+          hostname: 'us-east-1.tixte.net',
+          pathname: '/uploads/**',
         },
       ],
     },
