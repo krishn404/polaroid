@@ -21,6 +21,7 @@ import BottomNavigation from './BottomNavigation'
 import CameraCapture from './CameraCapture'
 import StickerGallery from './StickerGallery'
 import DraggableSticker from './DraggableSticker'
+import { AnimatePresence, motion } from 'framer-motion'
 
 const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
 
@@ -45,6 +46,11 @@ export default function PolaroidGenerator() {
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null)
   const [isCameraOpen, setIsCameraOpen] = useState(false)
   const [stickers, setStickers] = useState<Sticker[]>([])
+  const [isPresetSelectionOpen, setIsPresetSelectionOpen] = useState(false)
+  const presetMenuRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const isDraggingRef = useRef(false)
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -104,7 +110,13 @@ export default function PolaroidGenerator() {
   }
 
   const handleToolClick = (toolId: ToolId) => {
-    setActiveTool(activeTool === toolId ? null : toolId)
+    if (toolId === 'filters') {
+      setIsPresetSelectionOpen(prev => !prev)
+      setActiveTool(null)
+    } else {
+      setIsPresetSelectionOpen(false)
+      setActiveTool(activeTool === toolId ? null : toolId)
+    }
   }
 
   const handlePresetChange = (preset: Preset) => {
@@ -147,6 +159,22 @@ export default function PolaroidGenerator() {
     }
   }, [image])
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (presetMenuRef.current && !presetMenuRef.current.contains(event.target as Node)) {
+        setIsPresetSelectionOpen(false)
+      }
+    }
+
+    if (isPresetSelectionOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isPresetSelectionOpen])
+
   const tweaksAdjustments = {
     brightness: { label: 'Brightness', min: 0, max: 2, step: 0.01, value: adjustments.brightness },
     contrast: { label: 'Contrast', min: 0, max: 2, step: 0.01, value: adjustments.contrast },
@@ -155,6 +183,72 @@ export default function PolaroidGenerator() {
     noise: { label: 'Noise', min: 0, max: 1, step: 0.01, value: adjustments.noise },
     glare: { label: 'Glare', min: 0, max: 1, step: 0.01, value: adjustments.glare },
   }
+
+  useEffect(() => {
+    if (!scrollContainerRef.current) return
+
+    const options = {
+      root: scrollContainerRef.current,
+      rootMargin: '0px',
+      threshold: 0.8, // Higher threshold for more precise center detection
+    }
+
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      if (isDraggingRef.current) return
+
+      const centerEntry = entries.reduce((prev, current) => {
+        return (prev?.intersectionRatio ?? 0) > (current.intersectionRatio ?? 0) ? prev : current
+      })
+
+      if (centerEntry?.intersectionRatio > 0.8) {
+        const presetIndex = Number(centerEntry.target.getAttribute('data-index'))
+        const newPreset = presets[presetIndex]
+        if (newPreset && newPreset.name !== selectedPreset.name) {
+          handlePresetChange(newPreset)
+        }
+      }
+    }
+
+    observerRef.current = new IntersectionObserver(handleIntersection, options)
+    
+    // Observe all preset elements
+    const presetElements = scrollContainerRef.current.querySelectorAll('.snap-center')
+    presetElements.forEach((element) => {
+      observerRef.current?.observe(element)
+    })
+
+    return () => {
+      observerRef.current?.disconnect()
+    }
+  }, [selectedPreset.name])
+
+  // Add touch and mouse event handlers
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const handleDragStart = () => {
+      isDraggingRef.current = true
+    }
+
+    const handleDragEnd = () => {
+      setTimeout(() => {
+        isDraggingRef.current = false
+      }, 50)
+    }
+
+    container.addEventListener('mousedown', handleDragStart)
+    container.addEventListener('touchstart', handleDragStart)
+    container.addEventListener('mouseup', handleDragEnd)
+    container.addEventListener('touchend', handleDragEnd)
+
+    return () => {
+      container.removeEventListener('mousedown', handleDragStart)
+      container.removeEventListener('touchstart', handleDragStart)
+      container.removeEventListener('mouseup', handleDragEnd)
+      container.removeEventListener('touchend', handleDragEnd)
+    }
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-black/95 to-black/90">
@@ -304,67 +398,142 @@ export default function PolaroidGenerator() {
                 {/* Tools Menu */}
                 <div className="space-y-4 lg:bg-white/5 lg:backdrop-blur-xl lg:rounded-3xl lg:p-6">
                   {/* Tools Bar */}
-                  <div className="bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl rounded-2xl p-3 border border-white/10">
-                    <div className="flex justify-between items-center gap-2">
-                      {tools.map((tool) => (
-                        <Button
-                          key={tool.id}
-                          variant="ghost"
-                          size="icon"
+                  <AnimatePresence mode="wait">
+                    {!isPresetSelectionOpen ? (
+                      <motion.div
+                        key="tools"
+                        initial={{ borderRadius: 40 }}
+                        animate={{ borderRadius: 16 }}
+                        exit={{ borderRadius: 40, opacity: 0 }}
+                        className="bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10"
+                      >
+                        <div className="flex justify-between items-center gap-2">
+                          {tools.map((tool) => (
+                            <Button
+                              key={tool.id}
+                              variant="ghost"
+                              size="icon"
+                              className={cn(
+                                "rounded-xl flex-1 h-14",
+                                "backdrop-blur-xl transition-all duration-300",
+                                "group relative overflow-hidden",
+                                activeTool === tool.id 
+                                  ? "bg-white/20 text-white shadow-lg" 
+                                  : "text-white/60 hover:text-white hover:bg-white/10"
+                              )}
+                              onClick={() => handleToolClick(tool.id)}
+                            >
+                              <tool.icon className={cn(
+                                "h-5 w-5 transition-transform duration-300",
+                                "group-hover:scale-110"
+                              )} />
+                              <div className={cn(
+                                "absolute inset-0 rounded-xl opacity-0",
+                                "bg-gradient-to-tr from-white/20 to-transparent",
+                                "transition-opacity duration-300",
+                                "group-hover:opacity-100"
+                              )} />
+                            </Button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        ref={presetMenuRef}
+                        key="presets"
+                        initial={{ borderRadius: 16, opacity: 0 }}
+                        animate={{ borderRadius: 40, opacity: 1 }}
+                        exit={{ borderRadius: 16, opacity: 0 }}
+                        className="bg-gradient-to-b from-white/[0.08] to-white/[0.04] backdrop-blur-xl p-6 border border-white/5 rounded-[40px]"
+                      >
+                        <div 
+                          ref={scrollContainerRef}
                           className={cn(
-                            "rounded-xl flex-1 h-14",
-                            "backdrop-blur-xl transition-all duration-300",
-                            "group relative overflow-hidden",
-                            activeTool === tool.id 
-                              ? "bg-white/20 text-white shadow-lg" 
-                              : "text-white/60 hover:text-white hover:bg-white/10"
+                            "relative",
+                            // Mobile: horizontal scroll
+                            "overflow-x-auto scrollbar-hide",
+                            // Desktop: vertical scroll with fixed height
+                            "lg:overflow-x-hidden lg:overflow-y-auto lg:h-[400px]"
                           )}
-                          onClick={() => handleToolClick(tool.id)}
+                          style={{
+                            scrollBehavior: 'smooth',
+                            WebkitOverflowScrolling: 'touch'
+                          }}
                         >
-                          <tool.icon className={cn(
-                            "h-5 w-5 transition-transform duration-300",
-                            "group-hover:scale-110"
-                          )} />
                           <div className={cn(
-                            "absolute inset-0 rounded-xl opacity-0",
-                            "bg-gradient-to-tr from-white/20 to-transparent",
-                            "transition-opacity duration-300",
-                            "group-hover:opacity-100"
-                          )} />
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Tool Panels with Enhanced Animations */}
-                  <Collapsible open={activeTool === 'filters'}>
-                    <CollapsibleContent className="bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl rounded-2xl p-4 border border-white/10">
-                      <div className="grid grid-cols-3 gap-3">
-                        {presets.map((preset, index) => (
-                          <Button
-                            key={preset.name}
-                            variant={selectedPreset.name === preset.name ? "default" : "outline"}
-                            onClick={() => handlePresetChange(preset)}
-                            className={cn(
-                              "h-24 aspect-[4/5] flex flex-col items-center justify-center gap-2",
-                              "rounded-xl transition-all duration-300",
-                              "group relative overflow-hidden",
-                              "animate-fade-in",
-                              selectedPreset.name === preset.name 
-                                ? "bg-gradient-to-tr from-white/25 to-white/15 text-white shadow-lg" 
-                                : "bg-black/20 border-white/10 text-white/60 hover:bg-white/10"
-                            )}
-                            style={{
-                              animationDelay: `${index * 50}ms`
-                            }}
-                          >
-                            <preset.icon className="h-6 w-6 group-hover:scale-110 transition-transform duration-300" />
-                            <span className="text-sm">{preset.label}</span>
-                          </Button>
-                        ))}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
+                            "py-2 px-1",
+                            // Mobile: horizontal flex
+                            "flex gap-5 min-w-max",
+                            // Desktop: grid layout
+                            "lg:flex-none lg:grid lg:grid-cols-3 lg:w-[280px] lg:gap-3"
+                          )}>
+                            {presets.map((preset, index) => (
+                              <motion.div
+                                key={preset.name}
+                                data-index={index}
+                                className={cn(
+                                  "snap-center flex flex-col items-center",
+                                  "gap-2.5 lg:gap-1"
+                                )}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ 
+                                  duration: 0.25,
+                                  delay: index * 0.04,
+                                  ease: [0.23, 1, 0.32, 1]
+                                }}
+                              >
+                                <Button
+                                  variant={selectedPreset.name === preset.name ? "default" : "outline"}
+                                  onClick={() => handlePresetChange(preset)}
+                                  className={cn(
+                                    "flex flex-col items-center justify-center gap-1.5",
+                                    "transition-all duration-300 relative overflow-hidden",
+                                    // Mobile styles
+                                    "h-14 w-14 rounded-full",
+                                    "lg:h-[85px] lg:w-full lg:rounded-2xl",
+                                    // Selected state - Mobile
+                                    selectedPreset.name === preset.name 
+                                      ? "bg-gradient-to-b from-white/[0.12] to-white/[0.08] text-white backdrop-blur-xl border-transparent" 
+                                      : "bg-black/10 border-white/10 text-white/50 hover:bg-white/[0.06] hover:border-white/20",
+                                    // Desktop styles
+                                    "lg:bg-white/[0.03] lg:backdrop-blur-md lg:border-white/[0.05]",
+                                    selectedPreset.name === preset.name 
+                                      ? "lg:bg-white/[0.08] lg:text-white" 
+                                      : "lg:hover:bg-white/[0.06] lg:text-white/70"
+                                  )}
+                                  style={{
+                                    backdropFilter: 'blur(8px)',
+                                    WebkitBackdropFilter: 'blur(8px)'
+                                  }}
+                                >
+                                  <preset.icon className="h-5 w-5 lg:h-6 lg:w-6 transition-all duration-300" />
+                                  <span className={cn(
+                                    "hidden lg:block text-sm font-medium",
+                                    selectedPreset.name === preset.name
+                                      ? "text-white/90"
+                                      : "text-white/70"
+                                  )}>
+                                    {preset.name}
+                                  </span>
+                                </Button>
+                                {/* Mobile-only label */}
+                                <span className={cn(
+                                  "font-medium transition-colors duration-200 lg:hidden",
+                                  "text-xs",
+                                  selectedPreset.name === preset.name
+                                    ? "text-white/90"
+                                    : "text-white/40"
+                                )}>
+                                  {preset.name}
+                                </span>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* <Collapsible open={activeTool === 'frames'}>
                     <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
