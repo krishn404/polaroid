@@ -5,7 +5,32 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ImageIcon } from 'lucide-react'
 import html2canvas from 'html2canvas'
-import { Indie_Flower } from 'next/font/google'
+import { 
+  Indie_Flower,
+  Homemade_Apple, 
+  Caveat, 
+  Shadows_Into_Light, 
+  Kalam, 
+  Gloria_Hallelujah, 
+  Patrick_Hand, 
+  Architects_Daughter,
+  Dancing_Script,
+  Pacifico,
+  Amatic_SC,
+  Sacramento,
+  Satisfy,
+  Permanent_Marker,
+  Rock_Salt,
+  Covered_By_Your_Grace,
+  Reenie_Beanie,
+  Just_Another_Hand,
+  Nothing_You_Could_Do,
+  Waiting_for_the_Sunrise,
+  Cedarville_Cursive,
+  Loved_by_the_King,
+  La_Belle_Aurore,
+  Zeyada
+} from 'next/font/google'
 import { cn } from '@/lib/utils'
 import { ImageColorGrading } from './color-grading'
 import Image from 'next/image'
@@ -22,8 +47,60 @@ import CameraCapture from './CameraCapture'
 import StickerGallery from './StickerGallery'
 import DraggableSticker from './DraggableSticker'
 import { AnimatePresence, motion } from 'framer-motion'
+import Caption from './Caption'
 
+// Initialize all fonts
 const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
+const homemadeApple = Homemade_Apple({ weight: '400', subsets: ['latin'] })
+const caveat = Caveat({ subsets: ['latin'] })
+const shadowsIntoLight = Shadows_Into_Light({ weight: '400', subsets: ['latin'] })
+const kalam = Kalam({ weight: '400', subsets: ['latin'] })
+const gloriaHallelujah = Gloria_Hallelujah({ weight: '400', subsets: ['latin'] })
+const patrickHand = Patrick_Hand({ weight: '400', subsets: ['latin'] })
+const architectsDaughter = Architects_Daughter({ weight: '400', subsets: ['latin'] })
+const dancingScript = Dancing_Script({ subsets: ['latin'] })
+const pacifico = Pacifico({ weight: '400', subsets: ['latin'] })
+const amaticSC = Amatic_SC({ weight: '400', subsets: ['latin'] })
+const sacramento = Sacramento({ weight: '400', subsets: ['latin'] })
+const satisfy = Satisfy({ weight: '400', subsets: ['latin'] })
+const permanentMarker = Permanent_Marker({ weight: '400', subsets: ['latin'] })
+const rockSalt = Rock_Salt({ weight: '400', subsets: ['latin'] })
+const coveredByYourGrace = Covered_By_Your_Grace({ weight: '400', subsets: ['latin'] })
+const reenieBeanie = Reenie_Beanie({ weight: '400', subsets: ['latin'] })
+const justAnotherHand = Just_Another_Hand({ weight: '400', subsets: ['latin'] })
+const nothingYouCouldDo = Nothing_You_Could_Do({ weight: '400', subsets: ['latin'] })
+const waitingForTheSunrise = Waiting_for_the_Sunrise({ weight: '400', subsets: ['latin'] })
+const cedarvilleCursive = Cedarville_Cursive({ weight: '400', subsets: ['latin'] })
+const lovedByTheKing = Loved_by_the_King({ weight: '400', subsets: ['latin'] })
+const laBelleAurore = La_Belle_Aurore({ weight: '400', subsets: ['latin'] })
+const zeyada = Zeyada({ weight: '400', subsets: ['latin'] })
+
+const fonts = {
+  indieFlower,
+  homemadeApple,
+  caveat,
+  shadowsIntoLight,
+  kalam,
+  gloriaHallelujah,
+  patrickHand,
+  architectsDaughter,
+  dancingScript,
+  pacifico,
+  amaticSC,
+  sacramento,
+  satisfy,
+  permanentMarker,
+  rockSalt,
+  coveredByYourGrace,
+  reenieBeanie,
+  justAnotherHand,
+  nothingYouCouldDo,
+  waitingForTheSunrise,
+  cedarvilleCursive,
+  lovedByTheKing,
+  laBelleAurore,
+  zeyada
+}
 
 interface Sticker {
   id: string;
@@ -51,6 +128,8 @@ export default function PolaroidGenerator() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
   const isDraggingRef = useRef(false)
+  const [selectedFont, setSelectedFont] = useState('indieFlower')
+  const [captionFontSize, setCaptionFontSize] = useState(16)
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -380,7 +459,11 @@ export default function PolaroidGenerator() {
                         </div>
                         <div className="h-16 flex items-center justify-center mt-2 relative">
                           {caption && (
-                            <p className={`text-center text-xl text-gray-800 leading-tight ${indieFlower.className}`}>
+                            <p className={cn(
+                              "text-center text-gray-800 leading-tight",
+                              fonts[selectedFont as keyof typeof fonts]?.className || fonts.indieFlower.className
+                            )}
+                            style={{ fontSize: `${captionFontSize}px` }}>
                               {caption}
                             </p>
                           )}
@@ -450,10 +533,11 @@ export default function PolaroidGenerator() {
                           ref={scrollContainerRef}
                           className={cn(
                             "relative",
-                            // Mobile: horizontal scroll
-                            "overflow-x-auto scrollbar-hide",
-                            // Desktop: vertical scroll with fixed height
-                            "lg:overflow-x-hidden lg:overflow-y-auto lg:h-[400px]"
+                            "overflow-y-auto scrollbar-hide",
+                            "lg:h-[520px] lg:w-[280px]",
+                            "lg:bg-white/[0.04] lg:backdrop-blur-xl",
+                            "lg:rounded-3xl lg:p-3",
+                            "lg:border lg:border-white/[0.03]"
                           )}
                           style={{
                             scrollBehavior: 'smooth',
@@ -465,7 +549,7 @@ export default function PolaroidGenerator() {
                             // Mobile: horizontal flex
                             "flex gap-5 min-w-max",
                             // Desktop: grid layout
-                            "lg:flex-none lg:grid lg:grid-cols-3 lg:w-[280px] lg:gap-3"
+                            "lg:flex-none lg:grid lg:grid-cols-3 lg:gap-3"
                           )}>
                             {presets.map((preset, index) => (
                               <motion.div
@@ -491,13 +575,13 @@ export default function PolaroidGenerator() {
                                     "transition-all duration-300 relative overflow-hidden",
                                     // Mobile styles
                                     "h-14 w-14 rounded-full",
-                                    "lg:h-[85px] lg:w-full lg:rounded-2xl",
+                                    "lg:h-[80px] lg:w-full lg:rounded-2xl",
                                     // Selected state - Mobile
                                     selectedPreset.name === preset.name 
                                       ? "bg-gradient-to-b from-white/[0.12] to-white/[0.08] text-white backdrop-blur-xl border-transparent" 
                                       : "bg-black/10 border-white/10 text-white/50 hover:bg-white/[0.06] hover:border-white/20",
                                     // Desktop styles
-                                    "lg:bg-white/[0.03] lg:backdrop-blur-md lg:border-white/[0.05]",
+                                    "lg:bg-white/[0.03] lg:backdrop-blur-md lg:border-white/[0.04]",
                                     selectedPreset.name === preset.name 
                                       ? "lg:bg-white/[0.08] lg:text-white" 
                                       : "lg:hover:bg-white/[0.06] lg:text-white/70"
@@ -507,9 +591,9 @@ export default function PolaroidGenerator() {
                                     WebkitBackdropFilter: 'blur(8px)'
                                   }}
                                 >
-                                  <preset.icon className="h-5 w-5 lg:h-6 lg:w-6 transition-all duration-300" />
+                                  <preset.icon className="h-5 w-5 lg:h-5 lg:w-5 transition-all duration-300" />
                                   <span className={cn(
-                                    "hidden lg:block text-sm font-medium",
+                                    "hidden lg:block text-xs font-medium",
                                     selectedPreset.name === preset.name
                                       ? "text-white/90"
                                       : "text-white/70"
@@ -570,13 +654,14 @@ export default function PolaroidGenerator() {
 
                   <Collapsible open={activeTool === 'caption'}>
                     <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
-                      <Input
-                        type="text"
-                        value={caption}
-                        onChange={(e) => setCaption(e.target.value)}
-                        placeholder="Add a caption..."
-                        maxLength={50}
-                        className="bg-black/20 border-white/10 text-white placeholder:text-white/40"
+                      <Caption
+                        caption={caption}
+                        isOpen={true}
+                        onChange={setCaption}
+                        selectedFont={selectedFont}
+                        onFontChange={setSelectedFont}
+                        fontSize={captionFontSize}
+                        onFontSizeChange={setCaptionFontSize}
                       />
                     </CollapsibleContent>
                   </Collapsible>
