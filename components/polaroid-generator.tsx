@@ -126,8 +126,6 @@ export default function PolaroidGenerator() {
   const [isPresetSelectionOpen, setIsPresetSelectionOpen] = useState(false)
   const presetMenuRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const observerRef = useRef<IntersectionObserver | null>(null)
-  const isDraggingRef = useRef(false)
   const [selectedFont, setSelectedFont] = useState('indieFlower')
   const [captionFontSize, setCaptionFontSize] = useState(16)
 
@@ -262,72 +260,6 @@ export default function PolaroidGenerator() {
     noise: { label: 'Noise', min: 0, max: 1, step: 0.01, value: adjustments.noise },
     glare: { label: 'Glare', min: 0, max: 1, step: 0.01, value: adjustments.glare },
   }
-
-  useEffect(() => {
-    if (!scrollContainerRef.current) return
-
-    const options = {
-      root: scrollContainerRef.current,
-      rootMargin: '0px',
-      threshold: 0.8, // Higher threshold for more precise center detection
-    }
-
-    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-      if (isDraggingRef.current) return
-
-      const centerEntry = entries.reduce((prev, current) => {
-        return (prev?.intersectionRatio ?? 0) > (current.intersectionRatio ?? 0) ? prev : current
-      })
-
-      if (centerEntry?.intersectionRatio > 0.8) {
-        const presetIndex = Number(centerEntry.target.getAttribute('data-index'))
-        const newPreset = presets[presetIndex]
-        if (newPreset && newPreset.name !== selectedPreset.name) {
-          handlePresetChange(newPreset)
-        }
-      }
-    }
-
-    observerRef.current = new IntersectionObserver(handleIntersection, options)
-    
-    // Observe all preset elements
-    const presetElements = scrollContainerRef.current.querySelectorAll('.snap-center')
-    presetElements.forEach((element) => {
-      observerRef.current?.observe(element)
-    })
-
-    return () => {
-      observerRef.current?.disconnect()
-    }
-  }, [selectedPreset.name])
-
-  // Add touch and mouse event handlers
-  useEffect(() => {
-    const container = scrollContainerRef.current
-    if (!container) return
-
-    const handleDragStart = () => {
-      isDraggingRef.current = true
-    }
-
-    const handleDragEnd = () => {
-      setTimeout(() => {
-        isDraggingRef.current = false
-      }, 50)
-    }
-
-    container.addEventListener('mousedown', handleDragStart)
-    container.addEventListener('touchstart', handleDragStart)
-    container.addEventListener('mouseup', handleDragEnd)
-    container.addEventListener('touchend', handleDragEnd)
-
-    return () => {
-      container.removeEventListener('mousedown', handleDragStart)
-      container.removeEventListener('touchstart', handleDragStart)
-      container.removeEventListener('mouseup', handleDragEnd)
-      container.removeEventListener('touchend', handleDragEnd)
-    }
-  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-black/95 to-black/90">
@@ -554,7 +486,6 @@ export default function PolaroidGenerator() {
                             {presets.map((preset, index) => (
                               <motion.div
                                 key={preset.name}
-                                data-index={index}
                                 className={cn(
                                   "snap-center flex flex-col items-center",
                                   "gap-2.5 lg:gap-1"
