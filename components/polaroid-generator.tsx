@@ -119,6 +119,10 @@ export default function PolaroidGenerator() {
   const handleCameraCapture = (imageData: string) => {
     setImage(imageData)
     setBackgroundImage(imageData)
+    setIsCameraOpen(false)
+    // Reset to original preset when capturing new image
+    setSelectedPreset(presets[0])
+    setAdjustments(presets[0].adjustments)
   }
 
   const handleStickerSelect = (stickerUrl: string, stickerId: string, stickerName: string) => {
