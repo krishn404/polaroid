@@ -19,7 +19,7 @@ interface ColorGradingProps {
 const presets = {
   original: { brightness: 1, contrast: 1, saturation: 1, hue: 0, noise: 0, glare: 0 },
   vintage: { brightness: 1.1, contrast: 0.9, saturation: 1.2, hue: 15, noise: 0.1, glare: 0.3 },
-  blackAndWhite: { brightness: 1, contrast: 1.2, saturation: 0, hue: 0, noise: 0.05, glare: 0 },
+  mono: { brightness: 1, contrast: 1.2, saturation: 0, hue: 0, noise: 0.05, glare: 0 },
   warm: { brightness: 1.05, contrast: 1.05, saturation: 1.3, hue: 10, noise: 0, glare: 0 },
   cool: { brightness: 1, contrast: 1.05, saturation: 0.9, hue: -10, noise: 0, glare: 0 },
 }

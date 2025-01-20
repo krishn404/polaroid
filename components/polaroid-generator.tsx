@@ -287,11 +287,11 @@ export default function PolaroidGenerator() {
               image ? "lg:max-w-xl" : "lg:max-w-2xl"
             )}>
               {/* Header - Only show on mobile */}
-              <div className="text-center space-y-1 mb-6 lg:hidden">
-                <h1 className="text-2xl font-medium bg-gradient-to-r from-white/90 to-white/70 bg-clip-text text-transparent">
+              <div className="text-center space-y-0.5 mb-4 mt-2 lg:hidden">
+                <h1 className="text-xl font-medium bg-gradient-to-r from-white/90 to-white/70 bg-clip-text text-transparent">
                   Polaroid Studio
                 </h1>
-                <p className="text-sm text-white/50">Create beautiful memories</p>
+                <p className="text-xs text-white/50">Create beautiful memories</p>
               </div>
 
               {!image ? (
@@ -429,7 +429,7 @@ export default function PolaroidGenerator() {
                               variant="ghost"
                               size="icon"
                               className={cn(
-                                "rounded-xl flex-1 h-14",
+                                "rounded-xl flex-1 h-14  ",
                                 "backdrop-blur-xl transition-all duration-300",
                                 "group relative overflow-hidden",
                                 activeTool === tool.id 
@@ -443,7 +443,7 @@ export default function PolaroidGenerator() {
                                 "group-hover:scale-110"
                               )} />
                               <div className={cn(
-                                "absolute inset-0 rounded-xl opacity-0",
+                                "absolute inset-0 rounded-xl opacity-0 ",
                                 "bg-gradient-to-tr from-white/20 to-transparent",
                                 "transition-opacity duration-300",
                                 "group-hover:opacity-100"
@@ -459,28 +459,25 @@ export default function PolaroidGenerator() {
                         initial={{ borderRadius: 16, opacity: 0 }}
                         animate={{ borderRadius: 40, opacity: 1 }}
                         exit={{ borderRadius: 16, opacity: 0 }}
-                        className="bg-gradient-to-b from-white/[0.08] to-white/[0.04] backdrop-blur-xl p-6 border border-white/5 rounded-[40px]"
+                        className="bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10"
                       >
                         <div 
                           ref={scrollContainerRef}
                           className={cn(
-                            "relative",
-                            "overflow-y-auto scrollbar-hide",
-                            "lg:h-[520px] lg:w-[280px]",
+                            "relative", 
+                            "h-20",
+                            "flex items-center",
+                            "overflow-x-auto scrollbar-hide",
+                            "lg:h-auto lg:w-[280px]",
                             "lg:bg-white/[0.04] lg:backdrop-blur-xl",
                             "lg:rounded-3xl lg:p-3",
                             "lg:border lg:border-white/[0.03]"
                           )}
-                          style={{
-                            scrollBehavior: 'smooth',
-                            WebkitOverflowScrolling: 'touch'
-                          }}
                         >
                           <div className={cn(
                             "py-2 px-1",
-                            // Mobile: horizontal flex
-                            "flex gap-5 min-w-max",
-                            // Desktop: grid layout
+                            "flex gap-3",
+                            "min-w-max",
                             "lg:flex-none lg:grid lg:grid-cols-3 lg:gap-3"
                           )}>
                             {presets.map((preset, index) => (
@@ -488,7 +485,7 @@ export default function PolaroidGenerator() {
                                 key={preset.name}
                                 className={cn(
                                   "snap-center flex flex-col items-center",
-                                  "gap-2.5 lg:gap-1"
+                                  "gap-2 lg:gap-1"
                                 )}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -502,16 +499,13 @@ export default function PolaroidGenerator() {
                                   variant={selectedPreset.name === preset.name ? "default" : "outline"}
                                   onClick={() => handlePresetChange(preset)}
                                   className={cn(
-                                    "flex flex-col items-center justify-center gap-1.5",
+                                    "flex flex-col items-center justify-center gap-1",
                                     "transition-all duration-300 relative overflow-hidden",
-                                    // Mobile styles
-                                    "h-14 w-14 rounded-full",
+                                    "h-12 w-12 rounded-full",
                                     "lg:h-[80px] lg:w-full lg:rounded-2xl",
-                                    // Selected state - Mobile
                                     selectedPreset.name === preset.name 
                                       ? "bg-gradient-to-b from-white/[0.12] to-white/[0.08] text-white backdrop-blur-xl border-transparent" 
                                       : "bg-black/10 border-white/10 text-white/50 hover:bg-white/[0.06] hover:border-white/20",
-                                    // Desktop styles
                                     "lg:bg-white/[0.03] lg:backdrop-blur-md lg:border-white/[0.04]",
                                     selectedPreset.name === preset.name 
                                       ? "lg:bg-white/[0.08] lg:text-white" 
@@ -523,19 +517,11 @@ export default function PolaroidGenerator() {
                                   }}
                                 >
                                   <preset.icon className="h-5 w-5 lg:h-5 lg:w-5 transition-all duration-300" />
-                                  <span className={cn(
-                                    "hidden lg:block text-xs font-medium",
-                                    selectedPreset.name === preset.name
-                                      ? "text-white/90"
-                                      : "text-white/70"
-                                  )}>
-                                    {preset.name}
-                                  </span>
                                 </Button>
                                 {/* Mobile-only label */}
                                 <span className={cn(
                                   "font-medium transition-colors duration-200 lg:hidden",
-                                  "text-xs",
+                                  "text-[11px]",
                                   selectedPreset.name === preset.name
                                     ? "text-white/90"
                                     : "text-white/40"

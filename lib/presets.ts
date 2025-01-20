@@ -30,7 +30,7 @@ export const presets: Preset[] = [
     adjustments: { brightness: 1.1, contrast: 0.9, saturation: 1.2, hue: 15, noise: 0.1, glare: 0.3 }
   },
   { 
-    name: 'blackAndWhite', 
+    name: 'mono', 
     label: 'Mono', 
     icon: Moon,
     adjustments: { brightness: 1, contrast: 1.2, saturation: 0, hue: 0, noise: 0.05, glare: 0 }
