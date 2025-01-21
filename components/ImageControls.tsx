@@ -55,9 +55,9 @@ export function MobileImageControls({  onZoomIn, onZoomOut, onRotate, onReset, c
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       className={cn(
-        "fixed bottom-20 left-1/2 -translate-x-1/2 z-50",
+        "fixed bottom-20 left-[15%] -translate-x-1/2 z-50",
         "flex items-center gap-4 p-3 rounded-full",
-        "bg-black/40 backdrop-blur-xl border border-white/10",
+        "bg-black/50 backdrop-blur-xl border border-white/10",
         "shadow-xl shadow-black/20",
         className,
       )}
