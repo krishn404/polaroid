@@ -456,36 +456,40 @@ export default function PolaroidGenerator() {
                       <motion.div
                         ref={presetMenuRef}
                         key="presets"
-                        initial={{ borderRadius: 16, opacity: 0 }}
-                        animate={{ borderRadius: 40, opacity: 1 }}
-                        exit={{ borderRadius: 16, opacity: 0 }}
-                        className="bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className={cn(
+                          "mt-3",
+                          // Mobile styles
+                          "bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10 rounded-[2rem]",
+                          // Desktop styles
+                          "lg:bg-white/[0.04] lg:backdrop-blur-xl lg:rounded-2xl lg:border-white/[0.03]"
+                        )}
                       >
                         <div 
                           ref={scrollContainerRef}
                           className={cn(
-                            "relative", 
-                            "h-20",
-                            "flex items-center",
-                            "overflow-x-auto scrollbar-hide",
-                            "lg:h-auto lg:w-[280px]",
-                            "lg:bg-white/[0.04] lg:backdrop-blur-xl",
-                            "lg:rounded-3xl lg:p-3",
-                            "lg:border lg:border-white/[0.03]"
+                            "relative",
+                            // Mobile styles
+                            "h-[5.5rem] overflow-x-auto scrollbar-hide ",
+                            // Desktop styles
+                            "lg:h-[420px] lg:overflow-y-auto lg:overflow-x-hidden lg:px-2"
                           )}
                         >
                           <div className={cn(
                             "py-2 px-1",
-                            "flex gap-3",
-                            "min-w-max",
-                            "lg:flex-none lg:grid lg:grid-cols-3 lg:gap-3"
+                            // Mobile: horizontal flex
+                            "flex gap-3 min-w-max",
+                            // Desktop: grid layout
+                            "lg:grid lg:grid-cols-3 lg:gap-3 lg:min-w-0"
                           )}>
                             {presets.map((preset, index) => (
                               <motion.div
                                 key={preset.name}
                                 className={cn(
                                   "snap-center flex flex-col items-center",
-                                  "gap-2 lg:gap-1"
+                                  "gap-2"
                                 )}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -495,38 +499,37 @@ export default function PolaroidGenerator() {
                                   ease: [0.23, 1, 0.32, 1]
                                 }}
                               >
-                                <Button
-                                  variant={selectedPreset.name === preset.name ? "default" : "outline"}
+                                <button
                                   onClick={() => handlePresetChange(preset)}
                                   className={cn(
-                                    "flex flex-col items-center justify-center gap-1",
-                                    "transition-all duration-300 relative overflow-hidden",
+                                    "flex flex-col items-center justify-center",
+                                    "transition-all duration-300",
+                                    // Mobile styles
                                     "h-12 w-12 rounded-full",
-                                    "lg:h-[80px] lg:w-full lg:rounded-2xl",
+                                    // Desktop styles
+                                    "lg:aspect-square lg:w-full lg:rounded-2xl lg:py-4",
                                     selectedPreset.name === preset.name 
-                                      ? "bg-gradient-to-b from-white/[0.12] to-white/[0.08] text-white backdrop-blur-xl border-transparent" 
-                                      : "bg-black/10 border-white/10 text-white/50 hover:bg-white/[0.06] hover:border-white/20",
-                                    "lg:bg-white/[0.03] lg:backdrop-blur-md lg:border-white/[0.04]",
-                                    selectedPreset.name === preset.name 
-                                      ? "lg:bg-white/[0.08] lg:text-white" 
-                                      : "lg:hover:bg-white/[0.06] lg:text-white/70"
+                                      ? "bg-white/20 text-white" 
+                                      : "text-white/60 hover:bg-white/10 hover:text-white",
+                                    "lg:bg-black/20 lg:backdrop-blur-sm lg:border lg:border-white/5"
                                   )}
-                                  style={{
-                                    backdropFilter: 'blur(8px)',
-                                    WebkitBackdropFilter: 'blur(8px)'
-                                  }}
                                 >
-                                  <preset.icon className="h-5 w-5 lg:h-5 lg:w-5 transition-all duration-300" />
-                                </Button>
+                                  <preset.icon className="h-5 w-5 shrink-0" />
+                                  <span className={cn(
+                                    "hidden lg:block text-xs font-medium mt-2"
+                                  )}>
+                                    {preset.label}
+                                  </span>
+                                </button>
                                 {/* Mobile-only label */}
                                 <span className={cn(
-                                  "font-medium transition-colors duration-200 lg:hidden",
+                                  "font-medium lg:hidden",
                                   "text-[11px]",
                                   selectedPreset.name === preset.name
                                     ? "text-white/90"
                                     : "text-white/40"
                                 )}>
-                                  {preset.name}
+                                  {preset.label}
                                 </span>
                               </motion.div>
                             ))}
