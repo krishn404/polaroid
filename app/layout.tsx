@@ -1,5 +1,5 @@
 // app/layout.tsx
-import './globals.css' // Make sure you have this file
+import '../styles/globals.css' // Make sure you have this file
 
 const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID; // Accessing the GA ID from .env.local
 

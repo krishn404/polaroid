@@ -80,4 +80,3 @@ export function MobileImageControls({  onZoomIn, onZoomOut, onRotate, onReset, c
     </motion.div>
   )
 }
-

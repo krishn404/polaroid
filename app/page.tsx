@@ -1,4 +1,4 @@
-import PolaroidStack from "@/components/polaroid-stack";
+import PolaroidStack from "../components/layout/polaroid-stack";
 
 export default function Home() {
   return (
