@@ -31,7 +31,7 @@ Upload, customize, and download your personalized Polaroids in seconds.
 ## 🏗️ **Installation**
 1. **Clone the repository**:  
    ```bash
-   git clone https://github.com/yourusername/polaroid-maker.git
+   git clone https://github.com/krishn404 /polaroid-maker.git
    ```
 2. **Navigate to the project directory**:  
    ```bash
