@@ -32,20 +32,20 @@ import {
   Zeyada,
 } from "next/font/google"
 import { cn } from "@/lib/utils"
-import { ImageColorGrading } from "../editor/color-grading"
+import { ImageColorGrading } from "@/components/editor/color-grading"
 import Image from "next/image"
-import TweaksAdjustments from "../editor/TweaksAdjustments"
+import TweaksAdjustments from "@/components/editor/TweaksAdjustments"
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible"
-import BlurredBackground from "../common/BlurredBackground"
+import BlurredBackground from "@/components/common/BlurredBackground"
 import { tools, type ToolId } from "@/lib/tools"
 import { presets, type Preset, type Adjustments } from "@/lib/presets"
-import BottomNavigation from "../common/BottomNavigation"
-import CameraCapture from "../common/CameraCapture"
-import StickerGallery from "../common/StickerGallery"
-import DraggableSticker from "../common/DraggableSticker"
+import BottomNavigation from "@/components/common/BottomNavigation"
+import CameraCapture from "@/components/common/CameraCapture"
+import StickerGallery from "@/components/common/StickerGallery"
 import { AnimatePresence, motion } from "framer-motion"
-import Caption from "../common/Caption"
-import CropTool from "../editor/CropTool"
+import Caption from "@/components/common/Caption"
+import CropTool from "@/components/editor/CropTool"
+import DraggableSticker from "@/components/common/DraggableSticker"
 
 // Initialize all fonts
 const indieFlower = Indie_Flower({ weight: "400", subsets: ["latin"] })
@@ -104,7 +104,6 @@ interface Sticker {
   id: string
   url: string
   name: string
-  position?: { x: number; y: number }
 }
 
 export default function PolaroidGenerator() {
@@ -225,7 +224,6 @@ export default function PolaroidGenerator() {
         id: `${stickerId}-${Date.now()}`,
         url: stickerUrl,
         name: stickerName,
-        position: { x: 0, y: 0 },
       },
     ])
   }
@@ -377,17 +375,6 @@ export default function PolaroidGenerator() {
                               className="object-cover"
                             />
                           )}
-                          {/* Add stickers layer */}
-                          <div className="absolute inset-0">
-                            {stickers.map((sticker) => (
-                              <DraggableSticker
-                                key={sticker.id}
-                                url={sticker.url}
-                                name={sticker.name}
-                                onRemove={() => handleStickerRemove(sticker.id)}
-                              />
-                            ))}
-                          </div>
                         </div>
                         <div className="h-16 flex items-center justify-center mt-2 relative">
                           {caption && (
@@ -402,6 +389,17 @@ export default function PolaroidGenerator() {
                             </p>
                           )}
                         </div>
+                      </div>
+                      {/* Add stickers layer */}
+                      <div className="absolute inset-3 rounded-xl overflow-hidden">
+                        {stickers.map((sticker) => (
+                          <DraggableSticker
+                            key={sticker.id}
+                            url={sticker.url}
+                            name={sticker.name}
+                            onRemove={() => handleStickerRemove(sticker.id)}
+                          />
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -536,22 +534,6 @@ export default function PolaroidGenerator() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-
-                  {/* <Collapsible open={activeTool === 'frames'}>
-                    <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
-                      <div className="grid grid-cols-3 gap-4">
-                        {['Classic', 'Modern', 'Vintage'].map((frame) => (
-                          <Button
-                            key={frame}
-                            variant="outline"
-                            className="h-24 aspect-[4/5] bg-black/20 border-white/10 text-white/60"
-                          >
-                            {frame}
-                          </Button>
-                        ))}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible> */}
 
                   <Collapsible open={activeTool === "tweaks"}>
                     <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4 space-y-4">
