@@ -135,6 +135,13 @@ export default function PolaroidGenerator() {
     }
   }
 
+  const handleReplaceImage = (file: File) => {
+    processFile(file)
+    // Reset to original preset when replacing image
+    setSelectedPreset(presets[0])
+    setAdjustments(presets[0].adjustments)
+  }
+
   const processFile = (file: File) => {
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -574,6 +581,7 @@ export default function PolaroidGenerator() {
             onDownload={downloadImage}
             onFileInputClick={() => fileInputRef.current?.click()}
             onCameraClick={() => setIsCameraOpen(true)}
+            onReplace={handleReplaceImage}
           />
         </div>
         {isCropToolOpen && image && (
