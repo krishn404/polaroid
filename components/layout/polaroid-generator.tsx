@@ -180,11 +180,31 @@ export default function PolaroidGenerator() {
     try {
       const canvas = await html2canvas(polaroidRef.current, {
         backgroundColor: null,
+        scale: 3, // Higher resolution
+        useCORS: true,
+        allowTaint: true,
+        imageTimeout: 0,
+        onclone: (clonedDoc) => {
+          const polaroid = clonedDoc.querySelector('[data-polaroid]')
+          if (polaroid) {
+            // Preserve aspect ratio and quality
+            polaroid.setAttribute('style', 'transform: none !important')
+          }
+          // Ensure images are loaded
+          const images = clonedDoc.getElementsByTagName('img')
+          return Promise.all(Array.from(images).map(img => {
+            if (img.complete) return Promise.resolve()
+            return new Promise(resolve => {
+              img.onload = resolve
+              img.onerror = resolve
+            })
+          }))
+        }
       })
 
       const link = document.createElement("a")
       link.download = "polaroid.png"
-      link.href = canvas.toDataURL("image/png")
+      link.href = canvas.toDataURL("image/png", 1.0)
       link.click()
     } catch (error) {
       console.error("Error generating image:", error)
@@ -355,6 +375,7 @@ export default function PolaroidGenerator() {
                   <div className="space-y-6 animate-fade-in lg:w-[400px]">
                     <div
                       ref={polaroidRef}
+                      data-polaroid
                       className={cn(
                         "relative bg-white/90 backdrop-blur-xl rounded-2xl",
                         "transform transition-all duration-500",
