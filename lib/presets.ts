@@ -100,6 +100,60 @@ export const presets: Preset[] = [
     label: 'HDR', 
     icon: Mountain,
     adjustments: { brightness: 1.1, contrast: 1.3, saturation: 1.2, hue: 0, noise: 0, glare: 0.2 }
+  },
+  { 
+    name: 'fujiPro400h', 
+    label: 'Fuji Pro', 
+    icon: Camera,
+    adjustments: { brightness: 1.05, contrast: 0.95, saturation: 0.9, hue: 5, noise: 0.15, glare: 0.1 }
+  },
+  { 
+    name: 'portra400', 
+    label: 'Portra', 
+    icon: Camera,
+    adjustments: { brightness: 1.1, contrast: 0.9, saturation: 0.85, hue: 8, noise: 0.12, glare: 0.15 }
+  },
+  { 
+    name: 'iphoneCinematic', 
+    label: 'Cinematic', 
+    icon: Camera,
+    adjustments: { brightness: 1.05, contrast: 1.15, saturation: 0.95, hue: -5, noise: 0.05, glare: 0.2 }
+  },
+  { 
+    name: 'iphoneVibrant', 
+    label: 'iPhone Pro', 
+    icon: Camera,
+    adjustments: { brightness: 1.1, contrast: 1.2, saturation: 1.3, hue: 0, noise: 0, glare: 0.1 }
+  },
+  { 
+    name: 'filmGrain', 
+    label: 'Film Grain', 
+    icon: Camera,
+    adjustments: { brightness: 0.95, contrast: 1.1, saturation: 0.9, hue: 0, noise: 0.25, glare: 0.05 }
+  },
+  { 
+    name: 'bleachBypass', 
+    label: 'Bleach', 
+    icon: Camera,
+    adjustments: { brightness: 1.1, contrast: 1.4, saturation: 0.6, hue: -5, noise: 0.1, glare: 0.15 }
+  },
+  { 
+    name: 'crossProcess', 
+    label: 'Cross Pro', 
+    icon: Camera,
+    adjustments: { brightness: 1.15, contrast: 1.2, saturation: 1.3, hue: 15, noise: 0.15, glare: 0.2 }
+  },
+  { 
+    name: 'kodakGold', 
+    label: 'Gold', 
+    icon: Camera,
+    adjustments: { brightness: 1.1, contrast: 1.05, saturation: 1.2, hue: 10, noise: 0.1, glare: 0.15 }
+  },
+  { 
+    name: 'cinestill800t', 
+    label: 'Night Film', 
+    icon: Camera,
+    adjustments: { brightness: 1.05, contrast: 1.1, saturation: 0.85, hue: -15, noise: 0.2, glare: 0.25 }
   }
 ]
 

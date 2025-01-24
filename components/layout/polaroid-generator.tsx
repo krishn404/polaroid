@@ -34,18 +34,18 @@ import {
 import { cn } from "@/lib/utils"
 import { ImageColorGrading } from "@/components/editor/color-grading"
 import Image from "next/image"
-import TweaksAdjustments from "@/components/editor/TweaksAdjustments"
+import TweaksAdjustments from "../editor/TweaksAdjustments"
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible"
-import BlurredBackground from "@/components/common/BlurredBackground"
+import BlurredBackground from "../common/BlurredBackground"
 import { tools, type ToolId } from "@/lib/tools"
 import { presets, type Preset, type Adjustments } from "@/lib/presets"
-import BottomNavigation from "@/components/common/BottomNavigation"
-import CameraCapture from "@/components/common/CameraCapture"
-import StickerGallery from "@/components/common/StickerGallery"
+import BottomNavigation from "../common/BottomNavigation"
+import CameraCapture from "../common/CameraCapture"
+import StickerGallery from "../common/StickerGallery"
 import { AnimatePresence, motion } from "framer-motion"
-import Caption from "@/components/common/Caption"
-import CropTool from "@/components/editor/CropTool"
-import DraggableSticker from "@/components/common/DraggableSticker"
+import Caption from "../common/Caption"
+import CropTool from "../editor/CropTool"
+import DraggableSticker from "../common/DraggableSticker"
 
 // Initialize all fonts
 const indieFlower = Indie_Flower({ weight: "400", subsets: ["latin"] })
@@ -106,6 +106,70 @@ interface Sticker {
   name: string
 }
 
+// New component for preset thumbnails
+const PresetThumbnail: React.FC<{
+  preset: Preset
+  image: string
+  isSelected: boolean
+  onClick: () => void
+}> = ({ preset, image, isSelected, onClick }) => {
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+
+  useEffect(() => {
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    const img = new (window.Image as { new(): HTMLImageElement })()
+    img.crossOrigin = "anonymous"
+    img.src = image
+    img.onload = function() {
+      canvas.width = 100
+      canvas.height = 100
+      ctx.drawImage(img, 0, 0, 100, 100)
+
+      const imageData = ctx.getImageData(0, 0, 100, 100)
+      const data = imageData.data
+
+      for (let i = 0; i < data.length; i += 4) {
+        // Apply preset adjustments (simplified version)
+        data[i] *= preset.adjustments.brightness // Red
+        data[i + 1] *= preset.adjustments.brightness // Green
+        data[i + 2] *= preset.adjustments.brightness // Blue
+
+        // Apply saturation
+        const gray = 0.2989 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]
+        data[i] = gray * (1 - preset.adjustments.saturation) + data[i] * preset.adjustments.saturation
+        data[i + 1] = gray * (1 - preset.adjustments.saturation) + data[i + 1] * preset.adjustments.saturation
+        data[i + 2] = gray * (1 - preset.adjustments.saturation) + data[i + 2] * preset.adjustments.saturation
+      }
+
+      ctx.putImageData(imageData, 0, 0)
+      setPreviewImage(canvas.toDataURL())
+    }
+  }, [image, preset])
+
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "relative w-full aspect-square rounded-lg overflow-hidden",
+        "transition-all duration-300",
+        isSelected ? "ring-2 ring-white" : "hover:ring-1 hover:ring-white/50",
+      )}
+    >
+      {previewImage ? (
+        <Image src={previewImage || "/placeholder.svg"} alt={preset.label} layout="fill" objectFit="cover" />
+      ) : (
+        <div className="w-full h-full bg-gray-300 animate-pulse" />
+      )}
+      <div className="absolute inset-x-0 bottom-0 bg-black/50 p-1">
+        <span className="text-xs text-white font-medium">{preset.label}</span>
+      </div>
+    </button>
+  )
+}
+
 export default function PolaroidGenerator() {
   const [image, setImage] = useState<string | null>(null)
   const [processedImage, setProcessedImage] = useState<string | null>(null)
@@ -129,26 +193,21 @@ export default function PolaroidGenerator() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target?.files?.[0]
     if (file) {
       processFile(file)
     }
   }
 
-  const handleReplaceImage = (file: File) => {
-    processFile(file)
-    // Reset to original preset when replacing image
-    setSelectedPreset(presets[0])
-    setAdjustments(presets[0].adjustments)
-  }
-
   const processFile = (file: File) => {
     const reader = new FileReader()
-    reader.onload = (e) => {
-      const result = e.target?.result as string
-      setImage(result)
-      setOriginalImage(result)
-      setBackgroundImage(result)
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const result = e.target?.result
+      if (typeof result === "string") {
+        setImage(result)
+        setOriginalImage(result)
+        setBackgroundImage(result)
+      }
     }
     reader.readAsDataURL(file)
   }
@@ -480,7 +539,7 @@ export default function PolaroidGenerator() {
                           className={cn(
                             "relative",
                             // Mobile styles
-                            "h-[5.5rem] overflow-x-auto scrollbar-hide ",
+                            "h-[120px] overflow-x-auto scrollbar-hide ",
                             // Desktop styles
                             "lg:h-[420px] lg:overflow-y-auto lg:overflow-x-hidden lg:px-2",
                           )}
@@ -489,52 +548,19 @@ export default function PolaroidGenerator() {
                             className={cn(
                               "py-2 px-1",
                               // Mobile: horizontal flex
-                              "flex gap-3 min-w-max",
+                              "grid grid-flow-col auto-cols-[100px] gap-3",
                               // Desktop: grid layout
-                              "lg:grid lg:grid-cols-3 lg:gap-3 lg:min-w-0",
+                              "lg:grid-flow-row lg:grid-cols-3 lg:auto-rows-[100px]",
                             )}
                           >
-                            {presets.map((preset, index) => (
-                              <motion.div
+                            {presets.map((preset) => (
+                              <PresetThumbnail
                                 key={preset.name}
-                                className={cn("snap-center flex flex-col items-center", "gap-2")}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{
-                                  duration: 0.25,
-                                  delay: index * 0.04,
-                                  ease: [0.23, 1, 0.32, 1],
-                                }}
-                              >
-                                <button
-                                  onClick={() => handlePresetChange(preset)}
-                                  className={cn(
-                                    "flex flex-col items-center justify-center",
-                                    "transition-all duration-300",
-                                    // Mobile styles
-                                    "h-12 w-12 rounded-full",
-                                    // Desktop styles
-                                    "lg:aspect-square lg:w-full lg:rounded-2xl lg:py-4",
-                                    selectedPreset.name === preset.name
-                                      ? "bg-white/20 text-white"
-                                      : "text-white/60 hover:bg-white/10 hover:text-white",
-                                    "lg:bg-black/20 lg:backdrop-blur-sm lg:border lg:border-white/5",
-                                  )}
-                                >
-                                  <preset.icon className="h-5 w-5 shrink-0" />
-                                  <span className={cn("hidden lg:block text-xs font-medium mt-2")}>{preset.label}</span>
-                                </button>
-                                {/* Mobile-only label */}
-                                <span
-                                  className={cn(
-                                    "font-medium lg:hidden",
-                                    "text-[11px]",
-                                    selectedPreset.name === preset.name ? "text-white/90" : "text-white/40",
-                                  )}
-                                >
-                                  {preset.label}
-                                </span>
-                              </motion.div>
+                                preset={preset}
+                                image={image}
+                                isSelected={selectedPreset.name === preset.name}
+                                onClick={() => handlePresetChange(preset)}
+                              />
                             ))}
                           </div>
                         </div>
@@ -581,7 +607,7 @@ export default function PolaroidGenerator() {
             onDownload={downloadImage}
             onFileInputClick={() => fileInputRef.current?.click()}
             onCameraClick={() => setIsCameraOpen(true)}
-            onReplace={handleReplaceImage}
+            onReplace={processFile}
           />
         </div>
         {isCropToolOpen && image && (

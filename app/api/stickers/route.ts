@@ -15,6 +15,8 @@ interface TixteUpload {
   expiration: null;
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const headers = {
     "Authorization": process.env.NEXT_PUBLIC_TIXTE_UPLOAD_KEY || '',
