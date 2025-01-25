@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     siteName: "Polaroid Maker",
     images: [
       {
-        url: "/Retrova.png",
+        url: "/Retrova.jpg",
         width: 1200,
         height: 630,
         alt: "Retrova - Create & Share Beautiful Polaroid Memories",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Retrova - Create & Share Beautiful Polaroid Memories",
     description: "Transform your photos into stunning polaroid-style images",
-    images: ["/Retrova.png"],
+    images: ["/Retrova.jpg"],
     creator: "Krishna",
   },
   alternates: {
