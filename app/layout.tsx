@@ -1,7 +1,66 @@
 // app/layout.tsx
-import '../styles/globals.css' // Make sure you have this file
+import type { Metadata, Viewport } from "next"
+import "../styles/globals.css"
 
-const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID; // Accessing the GA ID from .env.local
+const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID
+
+export const metadata: Metadata = {
+  title: "Polaroid Maker",
+  description:
+    "Share your moments with the world - Create beautiful polaroid-style photos and share your memories instantly",
+  keywords: [
+    "photos",
+    "social",
+    "sharing",
+    "moments",
+    "polaroid",
+    "photo editor",
+    "image filters",
+    "photo frames",
+    "instant photos",
+  ],
+  authors: [{ name: "Krishna" }],
+  robots: "index, follow",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://retrova.vercel.app",
+    title: "Polaroid Maker - Create & Share Beautiful Memories",
+    description:
+      "Transform your photos into stunning polaroid-style images. Easy to use, instant sharing, and beautiful results.",
+    siteName: "Polaroid Maker",
+    images: [
+      {
+        url: "/Retrova.png",
+        width: 1200,
+        height: 630,
+        alt: "Retrova - Create & Share Beautiful Polaroid Memories",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Retrova - Create & Share Beautiful Polaroid Memories",
+    description: "Transform your photos into stunning polaroid-style images",
+    images: ["/Retrova.png"],
+    creator: "Krishna",
+  },
+  alternates: {
+    canonical: "https://retrova.vercel.app",
+  },
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export default function RootLayout({
   children,
@@ -10,39 +69,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <title>Turn your photos into Polaroid</title>
-        <meta name="description" content="Transform your digital photos into vintage-style Polaroid pictures with custom handwritten captions." />
-        <meta name="keywords" content="Polaroid photo generator, photo editor, vintage Polaroid effect, photo to Polaroid, custom captions, Polaroid photo maker" />
-        <meta name="author" content="PolaroidPix" />
-        <meta name="robots" content="index, follow" />
-        
-        <meta property="og:title" content="Polaroid Maker" />
-        <meta property="og:description" content="Transform your digital photos into vintage-style Polaroid pictures with custom handwritten captions." />
-        <meta property="og:url" content="https://polaroidpix.vercel.app/" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://polaroidpix.vercel.app/favicon.ico" />
-        <meta property="og:image:alt" content="Polaroid Maker logo" />
-        <meta property="og:image:type" content="image/x-icon" />
-        <meta property="og:site_name" content="Polaroid Maker" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Polaroid Maker" />
-        <meta name="twitter:description" content="Transform your digital photos into vintage-style Polaroid pictures with custom handwritten captions." />
-        <meta name="twitter:image" content="https://polaroidpix.vercel.app/favicon.ico" />
-
-        <meta property="og:image" content="https://polaroidpix.vercel.app/favicon.ico" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        
-        <meta property="og:image" content="https://polaroidpix.vercel.app/favicon.ico" />
-        <meta property="og:image:type" content="image/x-icon" />
-
-        <meta property="og:image" content="https://polaroidpix.vercel.app/favicon.ico" />
-        <meta property="og:image:alt" content="Polaroid photo maker" />
-
-        
-      </head>
       <body className={`antialiased`}>
         {children}
         {/* Google Analytics */}
@@ -61,3 +87,4 @@ export default function RootLayout({
     </html>
   )
 }
+
