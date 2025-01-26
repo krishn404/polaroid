@@ -17,18 +17,16 @@ export default function LandingPage({ onStartCreating }: { onStartCreating: () =
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
-      // Prevent Chrome 67 and earlier from automatically showing the prompt
+    const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
-      // Stash the event so it can be triggered later
-      setDeferredPrompt(e)
+      setDeferredPrompt(e as BeforeInstallPromptEvent)
       console.log('Install prompt ready')
     }
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as any)
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as any)
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     }
   }, [])
 
