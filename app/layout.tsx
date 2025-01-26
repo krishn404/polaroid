@@ -1,14 +1,13 @@
 // app/layout.tsx
-import type { Metadata, Viewport } from "next"
-import "../styles/globals.css"
-
-const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID
+import type { Metadata } from "next";
+import Script from "next/script";
+import "../styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Retrova - Polaroid Maker",
   description:
     "Share your moments with the world - Create beautiful polaroid-style photos and share your memories instantly",
-  metadataBase: new URL('https://retrova.vercel.app'),
+  metadataBase: new URL("https://retrova.vercel.app"),
   keywords: [
     "photos",
     "social",
@@ -53,57 +52,51 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://retrova.vercel.app",
   },
-}
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: "#000000",
-}
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>
+      <body className="antialiased">
         {children}
-        {/* Google Analytics */}
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`} />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_TRACKING_ID}');
-            `,
-          }}
-        />
+
+        {/* Google Analytics Script */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+              `}
+            </Script>
+          </>
+        )}
+
         {/* Service Worker Registration */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js', {
-                    scope: '/'
-                  }).then(function(registration) {
-                    console.log('ServiceWorker registration successful');
-                  }).catch(function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                  });
+        <Script id="service-worker" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                .then((registration) => {
+                  console.log('ServiceWorker registered with scope:', registration.scope);
+                })
+                .catch((err) => {
+                  console.error('ServiceWorker registration failed:', err);
                 });
-              }
-            `,
-          }}
-        />
+            }
+          `}
+        </Script>
       </body>
     </html>
-  )
+  );
 }
-

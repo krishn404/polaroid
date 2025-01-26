@@ -1,5 +1,5 @@
 export interface BeforeInstallPromptEvent extends Event {
-    readonly platforms: string[]
+    readonly platforms: ReadonlyArray<string>
     readonly userChoice: Promise<{
       outcome: "accepted" | "dismissed"
       platform: string
@@ -12,5 +12,3 @@ export interface BeforeInstallPromptEvent extends Event {
       beforeinstallprompt: BeforeInstallPromptEvent
     }
   }
-  
-  
