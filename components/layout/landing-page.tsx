@@ -2,11 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import {
-  Camera,
-  Download,
-  ArrowRight,
-} from "lucide-react"
+import { Camera, Download, ArrowRight } from "lucide-react"
 import { useState, useEffect } from "react"
 import type { BeforeInstallPromptEvent } from "@/types/pwa"
 
@@ -14,44 +10,58 @@ export default function LandingPage({ onStartCreating }: { onStartCreating: () =
   const { scrollY } = useScroll()
   const opacity = useTransform(scrollY, [0, 200], [1, 0])
   const scale = useTransform(scrollY, [0, 200], [1, 0.95])
+  const [isInstallable, setIsInstallable] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
-      console.log('Install prompt ready')
+      setIsInstallable(true)
     }
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
     }
   }, [])
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) {
-      console.log('No installation prompt available')
-      return
-    }
-
-    try {
-      // Show the prompt
-      await deferredPrompt.prompt()
-      // Wait for the user to respond to the prompt
-      const choiceResult = await deferredPrompt.userChoice
-      if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the installation prompt')
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      if (outcome === "accepted") {
+        console.log("User accepted the install prompt")
+        setIsInstallable(false)
       } else {
-        console.log('User dismissed the installation prompt')
+        console.log("User dismissed the install prompt")
       }
-      // Clear the saved prompt since it can't be used again
       setDeferredPrompt(null)
-    } catch (err) {
-      console.error('Error during installation:', err)
+    } else {
+      // If deferredPrompt is not available, the app might already be installed
+      // or the browser doesn't support installation
+      console.log("PWA installation not supported or already installed")
+      // You can add additional logic here, like opening the app if it's installed
     }
   }
+
+  useEffect(() => {
+    const checkInstalled = () => {
+      if (window.matchMedia("(display-mode: standalone)").matches) {
+        setIsInstallable(false)
+      }
+    }
+
+    window.addEventListener("appinstalled", () => {
+      setIsInstallable(false)
+    })
+
+    checkInstalled()
+    return () => {
+      window.removeEventListener("appinstalled", checkInstalled)
+    }
+  }, [])
 
   return (
     <div className="min-h-screen bg-black selection:bg-white/20 selection:text-white overflow-y-auto">
@@ -77,20 +87,15 @@ export default function LandingPage({ onStartCreating }: { onStartCreating: () =
               </motion.div>
               <motion.div className="flex gap-2">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    onClick={onStartCreating}
-                    className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-lg"
-                  >
-                    Launch App
-                  </Button>
+                  
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
                     onClick={handleInstallClick}
-                    className="bg-purple-500 hover:bg-purple-600 text-white backdrop-blur-lg"
-                    disabled={!deferredPrompt}
+                    className="bg-purple-500 hover:bg-purple-600 text-white h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base"
                   >
-                    Install PWA
+                    {isInstallable ? "Install App" : "Install App"}
+                    <Download className="w-4 h-4 ml-2" />
                   </Button>
                 </motion.div>
               </motion.div>
@@ -142,27 +147,24 @@ export default function LandingPage({ onStartCreating }: { onStartCreating: () =
                 transition={{ delay: 0.5 }}
                 className="flex flex-col sm:flex-row gap-4 justify-center px-4"
               >
-                <Button 
-                  size="lg" 
-                  onClick={onStartCreating} 
+                <Button
+                  size="lg"
+                  onClick={onStartCreating}
                   className="bg-white text-black hover:bg-white/90 h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base"
                 >
                   Start Creating Now
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   onClick={handleInstallClick}
-                  disabled={!deferredPrompt}
-                  className="bg-purple-500 hover:bg-purple-600 text-white h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-purple-500 hover:bg-purple-600 text-white h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base"
                 >
-                  Install App
+                  {isInstallable ? "Install App" : "Install App"}
                   <Download className="w-4 h-4 ml-2" />
                 </Button>
               </motion.div>
             </motion.div>
-
-            
           </div>
         </div>
       </div>
