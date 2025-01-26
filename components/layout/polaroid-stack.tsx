@@ -50,7 +50,7 @@ const PolaroidFrame = ({ src, caption, style, animate }: { src: string, caption:
   </motion.div>
 )
 
-export default function PolaroidStack() {
+export default function PolaroidStack({ onComplete }: { onComplete: () => void }) {
   const [stage, setStage] = useState(0)
   const [visiblePolaroids, setVisiblePolaroids] = useState(0)
 
@@ -67,11 +67,18 @@ export default function PolaroidStack() {
       })
     }, 1500)
 
-    return () => clearInterval(polaroidInterval)
-  }, [])
+    const timer = setTimeout(() => {
+      onComplete()
+    }, 3000)
+
+    return () => {
+      clearInterval(polaroidInterval)
+      clearTimeout(timer)
+    }
+  }, [onComplete])
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-gray-900">
+    <div className="relative w-full min-h-screen bg-gray-900 overflow-y-auto">
       <AnimatePresence>
         {stage === 0 && (
           <motion.div
@@ -81,7 +88,7 @@ export default function PolaroidStack() {
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
           >
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center min-h-screen">
               <div className="relative w-64">
                 {polaroidData.map((item, index) => (
                   <motion.div
