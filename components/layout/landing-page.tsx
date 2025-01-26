@@ -17,25 +17,41 @@ export default function LandingPage({ onStartCreating }: { onStartCreating: () =
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault()
-      setDeferredPrompt(e as BeforeInstallPromptEvent)
+      // Stash the event so it can be triggered later
+      setDeferredPrompt(e)
+      console.log('Install prompt ready')
     }
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as any)
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as any)
     }
   }, [])
 
   const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt()
-      const { outcome } = await deferredPrompt.userChoice
-      if (outcome === "accepted") {
-        setDeferredPrompt(null)
+    if (!deferredPrompt) {
+      console.log('No installation prompt available')
+      return
+    }
+
+    try {
+      // Show the prompt
+      await deferredPrompt.prompt()
+      // Wait for the user to respond to the prompt
+      const choiceResult = await deferredPrompt.userChoice
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the installation prompt')
+      } else {
+        console.log('User dismissed the installation prompt')
       }
+      // Clear the saved prompt since it can't be used again
+      setDeferredPrompt(null)
+    } catch (err) {
+      console.error('Error during installation:', err)
     }
   }
 
