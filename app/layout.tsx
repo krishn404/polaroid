@@ -1,13 +1,13 @@
 // app/layout.tsx
-import type { Metadata } from "next";
-import Script from "next/script";
-import "../styles/globals.css";
+import type { Metadata, Viewport } from "next"
+import "../styles/globals.css"
+
+const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID
 
 export const metadata: Metadata = {
-  title: "Retrova - Polaroid Maker",
+  title: "Polaroid Maker",
   description:
     "Share your moments with the world - Create beautiful polaroid-style photos and share your memories instantly",
-  metadataBase: new URL("https://retrova.vercel.app"),
   keywords: [
     "photos",
     "social",
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Krishna" }],
   robots: "index, follow",
-  manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     type: "website",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "Polaroid Maker",
     images: [
       {
-        url: "/retrova.jpg",
+        url: "/Retrova.jpg",
         width: 1200,
         height: 630,
         alt: "Retrova - Create & Share Beautiful Polaroid Memories",
@@ -46,57 +46,54 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Retrova - Create & Share Beautiful Polaroid Memories",
     description: "Transform your photos into stunning polaroid-style images",
-    images: ["/retrova.jpg"],
-    creator: "@Krishna",
+    images: ["/Retrova.jpg"],
+    creator: "Krishna",
   },
   alternates: {
     canonical: "https://retrova.vercel.app",
   },
-};
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className={`antialiased`}>
         {children}
-
-        {/* Google Analytics Script */}
-        {process.env.NEXT_PUBLIC_GA_ID && (
+        {/* Google Analytics - Modified to disable automatic service worker */}
+        {GA_TRACKING_ID && (
           <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-              strategy="afterInteractive"
+            <script 
+              async 
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}&l=dataLayer`} 
             />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
-              `}
-            </Script>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${GA_TRACKING_ID}', {
+                    send_page_view: true,
+                    transport_url: 'https://www.google-analytics.com',
+                    transport_type: 'beacon'
+                  });
+                `,
+              }}
+            />
           </>
         )}
-
-        {/* Service Worker Registration */}
-        <Script id="service-worker" strategy="afterInteractive">
-          {`
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.register('/sw.js', { scope: '/' })
-                .then((registration) => {
-                  console.log('ServiceWorker registered with scope:', registration.scope);
-                })
-                .catch((err) => {
-                  console.error('ServiceWorker registration failed:', err);
-                });
-            }
-          `}
-        </Script>
       </body>
     </html>
-  );
+  )
 }
