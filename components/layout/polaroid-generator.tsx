@@ -46,6 +46,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import Caption from "../common/Caption"
 import CropTool from "../editor/CropTool"
 import DraggableSticker from "../common/DraggableSticker"
+import ColorPicker from "../editor/ColorPicker"
 
 // Initialize all fonts
 const indieFlower = Indie_Flower({ weight: "400", subsets: ["latin"] })
@@ -193,6 +194,7 @@ export default function PolaroidGenerator() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
   const [isStickerGalleryOpen, setIsStickerGalleryOpen] = useState(false)
   const stickerMenuRef = useRef<HTMLDivElement>(null)
+  const [backgroundColor, setBackgroundColor] = useState('#FFFFFF')
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target?.files?.[0]
@@ -427,11 +429,12 @@ export default function PolaroidGenerator() {
                     <div
                       ref={polaroidRef}
                       className={cn(
-                        "relative bg-white/90 backdrop-blur-xl rounded-2xl",
+                        "relative backdrop-blur-xl rounded-2xl",
                         "transform transition-all duration-500",
                         "hover:scale-[1.02] hover:shadow-2xl",
                       )}
                       style={{
+                        backgroundColor: backgroundColor,
                         boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
                       }}
                     >
@@ -614,6 +617,12 @@ export default function PolaroidGenerator() {
                         fontSize={captionFontSize}
                         onFontSizeChange={setCaptionFontSize}
                       />
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  <Collapsible open={activeTool === "bgcolor"}>
+                    <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
+                      <ColorPicker value={backgroundColor} onChange={setBackgroundColor} />
                     </CollapsibleContent>
                   </Collapsible>
                 </div>
