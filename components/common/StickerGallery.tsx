@@ -65,7 +65,7 @@ export default function StickerGallery({ onSelect }: StickerGalleryProps) {
       className={cn(
         "relative",
         // Mobile styles
-        "h-[120px] overflow-x-auto scrollbar-hide",
+        "h-[100px] overflow-x-auto scrollbar-hide",
         // Desktop styles
         "lg:h-[420px] lg:overflow-y-auto lg:overflow-x-hidden lg:px-2"
       )}
@@ -73,10 +73,10 @@ export default function StickerGallery({ onSelect }: StickerGalleryProps) {
       <div
         className={cn(
           "py-2 px-1",
-          // Mobile: horizontal flex
-          "grid grid-flow-col auto-cols-[100px] gap-3",
-          // Desktop: grid layout
-          "lg:grid-flow-row lg:grid-cols-3 lg:auto-rows-[100px]"
+          // Mobile: horizontal flex with smaller items
+          "grid grid-flow-col auto-cols-[70px] gap-2",
+          // Desktop: grid layout with more columns
+          "lg:grid-flow-row lg:grid-cols-4 lg:auto-rows-[70px] lg:gap-3"
         )}
       >
         {stickers.map((sticker) => (
@@ -94,7 +94,7 @@ export default function StickerGallery({ onSelect }: StickerGalleryProps) {
               src={sticker.url}
               alt={sticker.name}
               fill
-              className="object-contain p-2"
+              className="object-contain p-1.5"
               unoptimized
               priority
             />
