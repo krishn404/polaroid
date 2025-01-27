@@ -46,7 +46,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import Caption from "../common/Caption"
 import CropTool from "../editor/CropTool"
 import DraggableSticker from "../common/DraggableSticker"
-import ColorPicker from "../editor/ColorPicker"
+import PolaroidBG from "../editor/PolaroidBG"
 
 // Initialize all fonts
 const indieFlower = Indie_Flower({ weight: "400", subsets: ["latin"] })
@@ -635,7 +635,7 @@ export default function PolaroidGenerator() {
 
                   <Collapsible open={activeTool === "bgcolor"}>
                     <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
-                      <ColorPicker value={backgroundColor} onChange={setBackgroundColor} />
+                      <PolaroidBG value={backgroundColor} onChange={setBackgroundColor} />
                     </CollapsibleContent>
                   </Collapsible>
                 </div>
