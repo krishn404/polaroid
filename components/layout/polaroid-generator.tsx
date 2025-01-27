@@ -243,11 +243,23 @@ export default function PolaroidGenerator() {
     try {
       const canvas = await html2canvas(polaroidRef.current, {
         backgroundColor: null,
+        scale: 2, // Higher quality
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+        onclone: (clonedDoc) => {
+          // Find the image in the cloned document
+          const clonedPolaroid = clonedDoc.querySelector('[data-polaroid-image]')
+          if (clonedPolaroid) {
+            // Ensure object-fit: cover is applied
+            clonedPolaroid.className = 'object-cover w-full h-full'
+          }
+        }
       })
 
       const link = document.createElement("a")
       link.download = "polaroid.png"
-      link.href = canvas.toDataURL("image/png")
+      link.href = canvas.toDataURL("image/png", 1.0)
       link.click()
     } catch (error) {
       console.error("Error generating image:", error)
@@ -454,6 +466,7 @@ export default function PolaroidGenerator() {
                               alt="Processed image"
                               fill
                               className="object-cover"
+                              data-polaroid-image
                             />
                           )}
                         </div>
