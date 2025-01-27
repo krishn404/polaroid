@@ -5,9 +5,10 @@ import "../styles/globals.css"
 const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID
 
 export const metadata: Metadata = {
-  title: "Polaroid Maker",
+  title: "Retrova - Polaroid Maker",
   description:
     "Share your moments with the world - Create beautiful polaroid-style photos and share your memories instantly",
+  metadataBase: new URL('https://retrova.vercel.app'),
   keywords: [
     "photos",
     "social",
@@ -21,9 +22,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Krishna" }],
   robots: "index, follow",
+  manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     type: "website",
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
     siteName: "Polaroid Maker",
     images: [
       {
-        url: "/Retrova.jpg",
+        url: "/retrova.jpg",
         width: 1200,
         height: 630,
         alt: "Retrova - Create & Share Beautiful Polaroid Memories",
@@ -46,8 +47,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Retrova - Create & Share Beautiful Polaroid Memories",
     description: "Transform your photos into stunning polaroid-style images",
-    images: ["/Retrova.jpg"],
-    creator: "Krishna",
+    images: ["/retrova.jpg"],
+    creator: "@Krishna",
   },
   alternates: {
     canonical: "https://retrova.vercel.app",
@@ -59,6 +60,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  themeColor: "#000000",
 }
 
 export default function RootLayout({
@@ -70,30 +72,38 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased`}>
         {children}
-        {/* Google Analytics - Modified to disable automatic service worker */}
-        {GA_TRACKING_ID && (
-          <>
-            <script 
-              async 
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}&l=dataLayer`} 
-            />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${GA_TRACKING_ID}', {
-                    send_page_view: true,
-                    transport_url: 'https://www.google-analytics.com',
-                    transport_type: 'beacon'
+        {/* Google Analytics */}
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_TRACKING_ID}');
+            `,
+          }}
+        />
+        {/* Service Worker Registration */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js', {
+                    scope: '/'
+                  }).then(function(registration) {
+                    console.log('ServiceWorker registration successful');
+                  }).catch(function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
                   });
-                `,
-              }}
-            />
-          </>
-        )}
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   )
 }
+

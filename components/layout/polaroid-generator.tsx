@@ -191,6 +191,8 @@ export default function PolaroidGenerator() {
   const [captionFontSize, setCaptionFontSize] = useState(16)
   const [isCropToolOpen, setIsCropToolOpen] = useState(false)
   const [originalImage, setOriginalImage] = useState<string | null>(null)
+  const [isStickerGalleryOpen, setIsStickerGalleryOpen] = useState(false)
+  const stickerMenuRef = useRef<HTMLDivElement>(null)
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target?.files?.[0]
@@ -256,11 +258,18 @@ export default function PolaroidGenerator() {
     if (toolId === "filters") {
       setIsPresetSelectionOpen((prev) => !prev)
       setActiveTool(null)
+    } else if (toolId === "stickers") {
+      setIsPresetSelectionOpen(false)
+      setActiveTool(null)
+      setIsStickerGalleryOpen((prev) => !prev)
     } else if (toolId === "crop") {
       setIsCropToolOpen(true)
       setActiveTool(null)
+      setIsPresetSelectionOpen(false)
+      setIsStickerGalleryOpen(false)
     } else {
       setIsPresetSelectionOpen(false)
+      setIsStickerGalleryOpen(false)
       setActiveTool(activeTool === toolId ? null : toolId)
     }
   }
@@ -323,16 +332,19 @@ export default function PolaroidGenerator() {
       if (presetMenuRef.current && !presetMenuRef.current.contains(event.target as Node)) {
         setIsPresetSelectionOpen(false)
       }
+      if (stickerMenuRef.current && !stickerMenuRef.current.contains(event.target as Node)) {
+        setIsStickerGalleryOpen(false)
+      }
     }
 
-    if (isPresetSelectionOpen) {
+    if (isPresetSelectionOpen || isStickerGalleryOpen) {
       document.addEventListener("mousedown", handleClickOutside)
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [isPresetSelectionOpen])
+  }, [isPresetSelectionOpen, isStickerGalleryOpen])
 
   const tweaksAdjustments = {
     brightness: { label: "Brightness", min: 0, max: 2, step: 0.01, value: adjustments.brightness },
@@ -480,7 +492,7 @@ export default function PolaroidGenerator() {
                 <div className="space-y-4 lg:bg-white/5 lg:backdrop-blur-xl lg:rounded-3xl lg:p-6">
                   {/* Tools Bar */}
                   <AnimatePresence mode="wait">
-                    {!isPresetSelectionOpen ? (
+                    {!isPresetSelectionOpen && !isStickerGalleryOpen ? (
                       <motion.div
                         key="tools"
                         initial={{ borderRadius: 40 }}
@@ -519,7 +531,7 @@ export default function PolaroidGenerator() {
                           ))}
                         </div>
                       </motion.div>
-                    ) : (
+                    ) : isPresetSelectionOpen ? (
                       <motion.div
                         ref={presetMenuRef}
                         key="presets"
@@ -565,18 +577,29 @@ export default function PolaroidGenerator() {
                           </div>
                         </div>
                       </motion.div>
+                    ) : (
+                      <motion.div
+                        ref={stickerMenuRef}
+                        key="stickers"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className={cn(
+                          "mt-3",
+                          // Mobile styles
+                          "bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10 rounded-[2rem]",
+                          // Desktop styles
+                          "lg:bg-white/[0.04] lg:backdrop-blur-xl lg:rounded-2xl lg:border-white/[0.03]",
+                        )}
+                      >
+                        <StickerGallery onSelect={handleStickerSelect} />
+                      </motion.div>
                     )}
                   </AnimatePresence>
 
                   <Collapsible open={activeTool === "tweaks"}>
                     <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4 space-y-4">
                       <TweaksAdjustments adjustments={tweaksAdjustments} onChange={handleAdjustmentChange} />
-                    </CollapsibleContent>
-                  </Collapsible>
-
-                  <Collapsible open={activeTool === "stickers"}>
-                    <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
-                      <StickerGallery onSelect={(url, id, name) => handleStickerSelect(url, id, name)} />
                     </CollapsibleContent>
                   </Collapsible>
 

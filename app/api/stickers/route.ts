@@ -26,7 +26,7 @@ export async function GET() {
 
   try {
     const response = await fetch(
-      `${TIXTE_API_URL}/users/@me/uploads?page=1&limit=5&domain=polaroidpix.tixte.co`, 
+      `${TIXTE_API_URL}/users/@me/uploads?domain=polaroidpix.tixte.co`, 
       { 
         method: 'GET',
         headers,
