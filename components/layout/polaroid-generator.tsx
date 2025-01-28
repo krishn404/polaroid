@@ -503,51 +503,74 @@ export default function PolaroidGenerator() {
 
             {image && (
               /* Right side - Tools */
-              <div className="lg:w-[400px]">
+              <div className={cn(
+                "lg:w-[400px]",
+                // Make panels wider on desktop
+                "xl:w-[600px]"
+              )}>
                 {/* Tools Menu */}
                 <div className="space-y-4 lg:bg-white/5 lg:backdrop-blur-xl lg:rounded-3xl lg:p-6">
                   {/* Tools Bar */}
+                  <motion.div
+                    key="tools"
+                    className={cn(
+                      // Mobile styles
+                      "bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10",
+                      // Desktop styles
+                      "lg:bg-gradient-to-r lg:from-white/[0.08] lg:to-white/[0.04]",
+                      "lg:border-white/[0.08] lg:rounded-2xl lg:p-4"
+                    )}
+                  >
+                    <div className="flex justify-between items-center gap-2">
+                      {tools.map((tool) => (
+                        <Button
+                          key={tool.id}
+                          variant="ghost"
+                          size="icon"
+                          className={cn(
+                            // Mobile styles
+                            "rounded-xl flex-1 h-14",
+                            "backdrop-blur-xl transition-all duration-300",
+                            "group relative overflow-hidden",
+                            activeTool === tool.id
+                              ? "bg-white/20 text-white shadow-lg"
+                              : "text-white/60 hover:text-white hover:bg-white/10",
+                            // Desktop styles
+                            "lg:h-16 lg:rounded-xl",
+                            "lg:hover:bg-white/[0.08] lg:hover:scale-[0.97]",
+                            activeTool === tool.id && "lg:bg-white/[0.12] lg:shadow-xl",
+                            tool.id === "filters" && isPresetSelectionOpen && "lg:bg-white/[0.12] lg:shadow-xl",
+                            tool.id === "stickers" && isStickerGalleryOpen && "lg:bg-white/[0.12] lg:shadow-xl"
+                          )}
+                          onClick={() => handleToolClick(tool.id)}
+                        >
+                          <tool.icon
+                            className={cn(
+                              "h-5 w-5 transition-transform duration-300",
+                              "group-hover:scale-110",
+                              // Desktop styles
+                              "lg:h-6 lg:w-6",
+                              "lg:group-hover:scale-105"
+                            )}
+                          />
+                          <div
+                            className={cn(
+                              "absolute inset-0 rounded-xl opacity-0",
+                              "bg-gradient-to-tr from-white/20 to-transparent",
+                              "transition-opacity duration-300",
+                              "group-hover:opacity-100",
+                              // Desktop styles
+                              "lg:from-white/10"
+                            )}
+                          />
+                        </Button>
+                      ))}
+                    </div>
+                  </motion.div>
+
+                  {/* Presets Panel */}
                   <AnimatePresence mode="wait">
-                    {!isPresetSelectionOpen && !isStickerGalleryOpen ? (
-                      <motion.div
-                        key="tools"
-                        initial={{ borderRadius: 40 }}
-                        animate={{ borderRadius: 16 }}
-                        exit={{ borderRadius: 40, opacity: 0 }}
-                        className="bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10"
-                      >
-                        <div className="flex justify-between items-center gap-2">
-                          {tools.map((tool) => (
-                            <Button
-                              key={tool.id}
-                              variant="ghost"
-                              size="icon"
-                              className={cn(
-                                "rounded-xl flex-1 h-14  ",
-                                "backdrop-blur-xl transition-all duration-300",
-                                "group relative overflow-hidden",
-                                activeTool === tool.id
-                                  ? "bg-white/20 text-white shadow-lg"
-                                  : "text-white/60 hover:text-white hover:bg-white/10",
-                              )}
-                              onClick={() => handleToolClick(tool.id)}
-                            >
-                              <tool.icon
-                                className={cn("h-5 w-5 transition-transform duration-300", "group-hover:scale-110")}
-                              />
-                              <div
-                                className={cn(
-                                  "absolute inset-0 rounded-xl opacity-0 ",
-                                  "bg-gradient-to-tr from-white/20 to-transparent",
-                                  "transition-opacity duration-300",
-                                  "group-hover:opacity-100",
-                                )}
-                              />
-                            </Button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    ) : isPresetSelectionOpen ? (
+                    {isPresetSelectionOpen && (
                       <motion.div
                         ref={presetMenuRef}
                         key="presets"
@@ -555,30 +578,30 @@ export default function PolaroidGenerator() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         className={cn(
-                          "mt-3",
                           // Mobile styles
-                          "bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10 rounded-[2rem]",
+                          "mt-3 bg-gradient-to-b from-white/[0.12] to-white/[0.08]",
+                          "backdrop-blur-2xl p-3 border border-white/10 rounded-[2rem]",
                           // Desktop styles
-                          "lg:bg-white/[0.04] lg:backdrop-blur-xl lg:rounded-2xl lg:border-white/[0.03]",
+                          "lg:mt-4 lg:p-4 lg:rounded-2xl",
+                          "lg:bg-gradient-to-br lg:from-white/[0.06] lg:to-white/[0.02]",
+                          "lg:border-white/[0.08] lg:shadow-xl"
                         )}
                       >
                         <div
                           ref={scrollContainerRef}
                           className={cn(
-                            "relative",
                             // Mobile styles
-                            "h-[120px] overflow-x-auto scrollbar-hide ",
-                            // Desktop styles
-                            "lg:h-[420px] lg:overflow-y-auto lg:overflow-x-hidden lg:px-2",
+                            "h-[120px] overflow-x-auto scrollbar-hide",
+                            // Desktop styles - no scrolling, wider grid
+                            "lg:h-auto lg:overflow-visible"
                           )}
                         >
                           <div
                             className={cn(
-                              "py-2 px-1",
-                              // Mobile: horizontal flex
+                              // Mobile styles
                               "grid grid-flow-col auto-cols-[100px] gap-3",
-                              // Desktop: grid layout
-                              "lg:grid-flow-row lg:grid-cols-3 lg:auto-rows-[100px]",
+                              // Desktop styles - wider grid with more columns
+                              "lg:grid-flow-row lg:grid-cols-4 xl:grid-cols-5 lg:gap-4 lg:p-2"
                             )}
                           >
                             {presets.map((preset) => (
@@ -593,7 +616,10 @@ export default function PolaroidGenerator() {
                           </div>
                         </div>
                       </motion.div>
-                    ) : (
+                    )}
+
+                    {/* Stickers Panel */}
+                    {isStickerGalleryOpen && (
                       <motion.div
                         ref={stickerMenuRef}
                         key="stickers"
@@ -601,11 +627,13 @@ export default function PolaroidGenerator() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         className={cn(
-                          "mt-3",
                           // Mobile styles
-                          "bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10 rounded-[2rem]",
+                          "mt-3 bg-gradient-to-b from-white/[0.12] to-white/[0.08]",
+                          "backdrop-blur-2xl p-3 border border-white/10 rounded-[2rem]",
                           // Desktop styles
-                          "lg:bg-white/[0.04] lg:backdrop-blur-xl lg:rounded-2xl lg:border-white/[0.03]",
+                          "lg:mt-4 lg:p-4 lg:rounded-2xl",
+                          "lg:bg-gradient-to-br lg:from-white/[0.06] lg:to-white/[0.02]",
+                          "lg:border-white/[0.08] lg:shadow-xl"
                         )}
                       >
                         <StickerGallery onSelect={handleStickerSelect} />
@@ -613,14 +641,26 @@ export default function PolaroidGenerator() {
                     )}
                   </AnimatePresence>
 
+                  {/* Other Panels */}
                   <Collapsible open={activeTool === "tweaks"}>
-                    <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4 space-y-4">
+                    <CollapsibleContent className={cn(
+                      "bg-white/5 backdrop-blur-xl rounded-xl p-4 space-y-4",
+                      "lg:bg-gradient-to-br lg:from-white/[0.06] lg:to-white/[0.02]",
+                      "lg:border lg:border-white/[0.08] lg:shadow-xl",
+                      "lg:rounded-2xl lg:p-6"
+                    )}>
                       <TweaksAdjustments adjustments={tweaksAdjustments} onChange={handleAdjustmentChange} />
                     </CollapsibleContent>
                   </Collapsible>
 
                   <Collapsible open={activeTool === "caption"}>
-                    <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
+                    <CollapsibleContent className={cn(
+                      // Mobile styles
+                      "bg-white/5 backdrop-blur-xl rounded-xl p-4",
+                      // Desktop styles - remove box, keep clean
+                      "lg:bg-transparent lg:backdrop-blur-none lg:p-2",
+                      "lg:border-none lg:shadow-none"
+                    )}>
                       <Caption
                         caption={caption}
                         isOpen={true}
@@ -634,7 +674,12 @@ export default function PolaroidGenerator() {
                   </Collapsible>
 
                   <Collapsible open={activeTool === "bgcolor"}>
-                    <CollapsibleContent className="bg-white/5 backdrop-blur-xl rounded-xl p-4">
+                    <CollapsibleContent className={cn(
+                      "bg-white/5 backdrop-blur-xl rounded-xl p-4",
+                      "lg:bg-gradient-to-br lg:from-white/[0.06] lg:to-white/[0.02]",
+                      "lg:border lg:border-white/[0.08] lg:shadow-xl",
+                      "lg:rounded-2xl lg:p-6"
+                    )}>
                       <PolaroidBG value={backgroundColor} onChange={setBackgroundColor} />
                     </CollapsibleContent>
                   </Collapsible>

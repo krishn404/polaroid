@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
 
 interface StickerGalleryProps {
   onSelect: (url: string, id: string, name: string) => void;
@@ -66,39 +67,57 @@ export default function StickerGallery({ onSelect }: StickerGalleryProps) {
         "relative",
         // Mobile styles
         "h-[100px] overflow-x-auto scrollbar-hide",
-        // Desktop styles
-        "lg:h-[420px] lg:overflow-y-auto lg:overflow-x-hidden lg:px-2"
+        // Desktop styles - no scrolling, auto height
+        "lg:h-auto lg:overflow-visible"
       )}
     >
       <div
         className={cn(
           "py-2 px-1",
-          // Mobile: horizontal flex with smaller items
+          // Mobile: horizontal grid
           "grid grid-flow-col auto-cols-[70px] gap-2",
-          // Desktop: grid layout with more columns
-          "lg:grid-flow-row lg:grid-cols-4 lg:auto-rows-[70px] lg:gap-3"
+          // Desktop: wider grid with more columns
+          "lg:grid-flow-row lg:grid-cols-6 xl:grid-cols-8",
+          "lg:gap-4 lg:p-2"
         )}
       >
-        {stickers.map((sticker) => (
-          <button
+        {stickers.map((sticker, index) => (
+          <motion.button
             key={sticker.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              duration: 0.3,
+              delay: index * 0.05,
+              ease: "easeOut"
+            }}
             onClick={() => onSelect(sticker.url, sticker.id, sticker.name)}
             className={cn(
               "relative w-full aspect-square rounded-lg overflow-hidden",
               "transition-all duration-300",
-              "hover:ring-1 hover:ring-white/50",
-              "bg-black/20"
+              "bg-white/[0.02] backdrop-blur-sm",
+              // Desktop enhancements
+              "lg:hover:bg-white/[0.06]",
+              "lg:ring-1 lg:ring-white/10",
+              "lg:hover:ring-white/20",
+              "lg:shadow-lg"
             )}
+            whileHover={{ scale: 0.95 }}
+            whileTap={{ scale: 0.9 }}
           >
             <Image
               src={sticker.url}
               alt={sticker.name}
               fill
-              className="object-contain p-1.5"
+              className={cn(
+                "object-contain p-1.5",
+                "transition-transform duration-300",
+                "lg:p-2 lg:hover:scale-110"
+              )}
               unoptimized
               priority
             />
-          </button>
+          </motion.button>
         ))}
       </div>
     </div>
