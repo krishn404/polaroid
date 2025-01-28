@@ -237,36 +237,39 @@ export default function PolaroidGenerator() {
   }
 
   const downloadImage = async () => {
-    if (!polaroidRef.current || !processedImage) return
+    if (!polaroidRef.current || !processedImage) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
       const canvas = await html2canvas(polaroidRef.current, {
         backgroundColor: null,
-        scale: 2, // Higher quality
+        scale: 3,
         logging: false,
         useCORS: true,
         allowTaint: true,
         onclone: (clonedDoc) => {
-          // Find the image in the cloned document
-          const clonedPolaroid = clonedDoc.querySelector('[data-polaroid-image]')
-          if (clonedPolaroid) {
-            // Ensure object-fit: cover is applied
-            clonedPolaroid.className = 'object-cover w-full h-full'
+          const clonedImage = clonedDoc.querySelector('[data-polaroid-image]') as HTMLElement;
+          if (clonedImage) {
+            clonedImage.style.objectFit = 'cover';
           }
-        }
-      })
 
-      const link = document.createElement("a")
-      link.download = "polaroid.png"
-      link.href = canvas.toDataURL("image/png", 1.0)
-      link.click()
+          const clonedStickers = Array.from(clonedDoc.querySelectorAll('[data-polaroid-sticker]')) as HTMLElement[];
+          clonedStickers.forEach(sticker => {
+            sticker.style.transform = sticker.style.transform;
+          });
+        }
+      });
+
+      const link = document.createElement("a");
+      link.download = "polaroid.png";
+      link.href = canvas.toDataURL("image/png", 1.0);
+      link.click();
     } catch (error) {
-      console.error("Error generating image:", error)
+      console.error("Error generating image:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleToolClick = (toolId: ToolId) => {
     if (toolId === "filters") {
@@ -377,7 +380,14 @@ export default function PolaroidGenerator() {
         {backgroundImage && <BlurredBackground image={backgroundImage} className="animate-fade-in opacity-60" />}
 
         {/* Main Content */}
-        <div className="flex-1 overflow-auto px-4 py-6 relative z-10 lg:flex lg:items-center lg:justify-center">
+        <div className={cn(
+          "flex-1 overflow-auto px-4 py-6 relative z-10",
+          "lg:flex lg:items-center lg:justify-center",
+          // Enhanced scrollbar for main content
+          "scrollbar-thin scrollbar-track-transparent",
+          "scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20",
+          "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]"
+        )}>
           <div className="max-w-md mx-auto space-y-6 lg:max-w-none lg:w-full lg:flex lg:items-center lg:justify-center lg:gap-16 lg:px-4">
             {/* Left side - Polaroid preview */}
             <div className={cn("lg:flex-1 lg:flex lg:justify-end", image ? "lg:max-w-xl" : "lg:max-w-2xl")}>
@@ -440,18 +450,17 @@ export default function PolaroidGenerator() {
                   <div className="space-y-6 animate-fade-in lg:w-[400px]">
                     <div
                       ref={polaroidRef}
+                      data-polaroid
                       className={cn(
-                        "relative backdrop-blur-xl rounded-2xl",
-                        "transform transition-all duration-500",
-                        "hover:scale-[1.02] hover:shadow-2xl",
+                        "relative w-full max-w-md mx-auto",
+                        "bg-white rounded-2xl shadow-2xl",
+                        "transition-transform duration-300",
+                        "aspect-[4/5]", // Adjusted aspect ratio for better image proportion
                       )}
-                      style={{
-                        backgroundColor: backgroundColor,
-                        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-                      }}
+                      style={{ backgroundColor }}
                     >
                       <div className="p-3">
-                        <div className="relative aspect-[4/5] overflow-hidden rounded-xl">
+                        <div className="relative aspect-[1/1] overflow-hidden rounded-xl"> {/* Changed to square aspect ratio */}
                           {image && (
                             <ImageColorGrading
                               image={image}
@@ -467,6 +476,8 @@ export default function PolaroidGenerator() {
                               fill
                               className="object-cover"
                               data-polaroid-image
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              priority
                             />
                           )}
                         </div>
@@ -509,7 +520,13 @@ export default function PolaroidGenerator() {
                 "xl:w-[600px]"
               )}>
                 {/* Tools Menu */}
-                <div className="space-y-4 lg:bg-white/5 lg:backdrop-blur-xl lg:rounded-3xl lg:p-6">
+                <div className={cn(
+                  "space-y-4 lg:bg-white/5 lg:backdrop-blur-xl lg:rounded-3xl lg:p-6",
+                  // Enhanced scrollbar for tools menu
+                  "lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto",
+                  "lg:scrollbar-thin lg:scrollbar-track-transparent",
+                  "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]"
+                )}>
                   {/* Tools Bar */}
                   <motion.div
                     key="tools"
@@ -592,8 +609,11 @@ export default function PolaroidGenerator() {
                           className={cn(
                             // Mobile styles
                             "h-[120px] overflow-x-auto scrollbar-hide",
-                            // Desktop styles - no scrolling, wider grid
-                            "lg:h-auto lg:overflow-visible"
+                            // Desktop styles - enhanced scrollbar
+                            "lg:h-auto lg:overflow-visible",
+                            "lg:scrollbar-thin lg:scrollbar-track-transparent",
+                            "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]",
+                            "lg:pr-2"
                           )}
                         >
                           <div
@@ -636,7 +656,17 @@ export default function PolaroidGenerator() {
                           "lg:border-white/[0.08] lg:shadow-xl"
                         )}
                       >
-                        <StickerGallery onSelect={handleStickerSelect} />
+                        <div className={cn(
+                          // Mobile styles
+                          "overflow-x-auto scrollbar-hide",
+                          // Desktop styles - enhanced scrollbar
+                          "lg:overflow-y-auto lg:overflow-x-hidden",
+                          "lg:scrollbar-thin lg:scrollbar-track-transparent",
+                          "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]",
+                          "lg:pr-2"
+                        )}>
+                          <StickerGallery onSelect={handleStickerSelect} />
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>

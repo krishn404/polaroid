@@ -67,8 +67,10 @@ export default function StickerGallery({ onSelect }: StickerGalleryProps) {
         "relative",
         // Mobile styles
         "h-[100px] overflow-x-auto scrollbar-hide",
-        // Desktop styles - no scrolling, auto height
-        "lg:h-auto lg:overflow-visible"
+        // Desktop styles - enhanced scrollbar
+        "lg:h-auto lg:overflow-visible",
+        "lg:scrollbar-thin lg:scrollbar-track-transparent",
+        "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]"
       )}
     >
       <div
@@ -78,7 +80,9 @@ export default function StickerGallery({ onSelect }: StickerGalleryProps) {
           "grid grid-flow-col auto-cols-[70px] gap-2",
           // Desktop: wider grid with more columns
           "lg:grid-flow-row lg:grid-cols-6 xl:grid-cols-8",
-          "lg:gap-4 lg:p-2"
+          "lg:gap-4 lg:p-2",
+          // Enhanced scrollbar padding
+          "lg:pr-3"
         )}
       >
         {stickers.map((sticker, index) => (
