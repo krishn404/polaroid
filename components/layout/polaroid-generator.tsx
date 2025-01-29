@@ -243,7 +243,7 @@ export default function PolaroidGenerator() {
     try {
       const canvas = await html2canvas(polaroidRef.current, {
         backgroundColor: null,
-        scale: 3,
+        scale: 2,
         logging: false,
         useCORS: true,
         allowTaint: true,
@@ -375,7 +375,7 @@ export default function PolaroidGenerator() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-black/95 to-black/90">
+    <div className="min-h-screen bg-gradient-to-b from-black via-black/95 to-black/90 overflow-hidden">
       {isCameraOpen && <CameraCapture onCapture={handleCameraCapture} onClose={() => setIsCameraOpen(false)} />}
 
       <div className="h-screen flex flex-col lg:flex-row lg:overflow-hidden lg:gap-8 lg:p-8">
@@ -383,12 +383,8 @@ export default function PolaroidGenerator() {
 
         {/* Main Content */}
         <div className={cn(
-          "flex-1 overflow-auto px-4 py-6 relative z-10",
-          "lg:flex lg:items-center lg:justify-center",
-          // Enhanced scrollbar for main content
-          "scrollbar-thin scrollbar-track-transparent",
-          "scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20",
-          "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]"
+          "flex-1 overflow-hidden px-4 py-6 relative z-10",
+          "lg:flex lg:items-center lg:justify-center"
         )}>
           <div className="max-w-md mx-auto space-y-6 lg:max-w-none lg:w-full lg:flex lg:items-center lg:justify-center lg:gap-16 lg:px-4">
             {/* Left side - Polaroid preview */}
@@ -516,15 +512,10 @@ export default function PolaroidGenerator() {
 
             {image && (
               /* Right side - Tools */
-              <div className={cn(
-                "lg:w-[400px]",
-                // Make panels wider on desktop
-                "xl:w-[600px]"
-              )}>
+              <div className={cn("lg:w-[400px]", "xl:w-[600px]")}>
                 {/* Tools Menu */}
                 <div className={cn(
                   "space-y-4 lg:bg-white/5 lg:backdrop-blur-xl lg:rounded-3xl lg:p-6",
-                  // Enhanced scrollbar for tools menu
                   "lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto",
                   "lg:scrollbar-thin lg:scrollbar-track-transparent",
                   "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]"
@@ -595,10 +586,8 @@ export default function PolaroidGenerator() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         className={cn(
-                          // Mobile styles
                           "mt-3 bg-gradient-to-b from-white/[0.12] to-white/[0.08]",
                           "backdrop-blur-2xl p-3 border border-white/10 rounded-[2rem]",
-                          // Desktop styles
                           "lg:mt-4 lg:p-4 lg:rounded-2xl",
                           "lg:bg-gradient-to-br lg:from-white/[0.06] lg:to-white/[0.02]",
                           "lg:border-white/[0.08] lg:shadow-xl"
@@ -607,20 +596,15 @@ export default function PolaroidGenerator() {
                         <div
                           ref={scrollContainerRef}
                           className={cn(
-                            // Mobile styles
-                            "h-[120px] overflow-x-auto scrollbar-hide",
-                            // Desktop styles - enhanced scrollbar
-                            "lg:h-auto lg:overflow-visible",
+                            "h-[120px] overflow-y-auto scrollbar-hide",
+                            "lg:h-auto lg:overflow-y-auto",
                             "lg:scrollbar-thin lg:scrollbar-track-transparent",
-                            "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]",
-                            "lg:pr-2"
+                            "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]"
                           )}
                         >
                           <div
                             className={cn(
-                              // Mobile styles
-                              "grid grid-flow-col auto-cols-[100px] gap-3",
-                              // Desktop styles - wider grid with more columns
+                              "grid grid-flow-col auto-cols-[100px] gap-3 p-2",
                               "lg:grid-flow-row lg:grid-cols-4 xl:grid-cols-5 lg:gap-4 lg:p-2"
                             )}
                           >
@@ -647,19 +631,15 @@ export default function PolaroidGenerator() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         className={cn(
-                          // Mobile styles
                           "mt-3 bg-gradient-to-b from-white/[0.12] to-white/[0.08]",
                           "backdrop-blur-2xl p-3 border border-white/10 rounded-[2rem]",
-                          // Desktop styles
                           "lg:mt-4 lg:p-4 lg:rounded-2xl",
                           "lg:bg-gradient-to-br lg:from-white/[0.06] lg:to-white/[0.02]",
                           "lg:border-white/[0.08] lg:shadow-xl"
                         )}
                       >
                         <div className={cn(
-                          // Mobile styles
                           "overflow-x-auto scrollbar-hide",
-                          // Desktop styles - enhanced scrollbar
                           "lg:overflow-y-auto lg:overflow-x-hidden",
                           "lg:scrollbar-thin lg:scrollbar-track-transparent",
                           "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]",
@@ -685,9 +665,7 @@ export default function PolaroidGenerator() {
 
                   <Collapsible open={activeTool === "caption"}>
                     <CollapsibleContent className={cn(
-                      // Mobile styles
                       "bg-white/5 backdrop-blur-xl rounded-xl p-4",
-                      // Desktop styles - remove box, keep clean
                       "lg:bg-transparent lg:backdrop-blur-none lg:p-2",
                       "lg:border-none lg:shadow-none"
                     )}>
