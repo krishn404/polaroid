@@ -383,8 +383,8 @@ export default function PolaroidGenerator() {
 
         {/* Main Content */}
         <div className={cn(
-          "flex-1 overflow-hidden px-4 py-6 relative z-10",
-          "lg:flex lg:items-center lg:justify-center"
+          "flex-1 overflow-y-auto px-4 py-6 relative z-10",
+          "lg:flex lg:items-center lg:justify-center lg:overflow-hidden"
         )}>
           <div className="max-w-md mx-auto space-y-6 lg:max-w-none lg:w-full lg:flex lg:items-center lg:justify-center lg:gap-16 lg:px-4">
             {/* Left side - Polaroid preview */}
