@@ -533,9 +533,7 @@ export default function PolaroidGenerator() {
                   <motion.div
                     key="tools"
                     className={cn(
-                      // Mobile styles
-                      "bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10",
-                      // Desktop styles
+                      "bg-gradient-to-b from-white/[0.12] to-white/[0.08] backdrop-blur-2xl p-3 border border-white/10 rounded-lg",
                       "lg:bg-gradient-to-r lg:from-white/[0.08] lg:to-white/[0.04]",
                       "lg:border-white/[0.08] lg:rounded-2xl lg:p-4"
                     )}
