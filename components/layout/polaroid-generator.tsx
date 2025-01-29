@@ -251,6 +251,8 @@ export default function PolaroidGenerator() {
           const clonedImage = clonedDoc.querySelector('[data-polaroid-image]') as HTMLElement;
           if (clonedImage) {
             clonedImage.style.objectFit = 'cover';
+            clonedImage.style.width = '100%';
+            clonedImage.style.height = '100%';
           }
 
           const clonedStickers = Array.from(clonedDoc.querySelectorAll('[data-polaroid-sticker]')) as HTMLElement[];
@@ -474,7 +476,7 @@ export default function PolaroidGenerator() {
                               src={processedImage || "/placeholder.svg"}
                               alt="Processed image"
                               fill
-                              className="object-cover"
+                              className="object-cover" // Ensure the image covers the area without distortion
                               data-polaroid-image
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                               priority

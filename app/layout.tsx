@@ -29,6 +29,14 @@ export const metadata: Metadata = {
     "image filters",
     "photo frames",
     "instant photos",
+    "photography",
+    "memories",
+    "creative",
+    "art",
+    "image editing",
+    "Instagram filter",
+    "photo effects",
+    "photo enhancement",
   ],
   authors: [{ name: "Krishna" }],
   robots: "index, follow",
@@ -138,4 +146,3 @@ export default function RootLayout({
     </html>
   )
 }
-
