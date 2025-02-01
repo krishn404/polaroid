@@ -764,4 +764,3 @@ export default function PolaroidGenerator() {
     </div>
   )
 }
-
