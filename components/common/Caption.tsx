@@ -1,66 +1,41 @@
-'use client'
+"use client"
 
 import { Input } from "@/components/ui/input"
-import {
-  Collapsible,
-  CollapsibleContent,
-} from "@/components/ui/collapsible"
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible"
 import { Slider } from "@/components/ui/slider"
-import { 
-  Indie_Flower,
-  Homemade_Apple,
-  Caveat,
-  Shadows_Into_Light,
-  Kalam,
-  Gloria_Hallelujah,
-  Patrick_Hand,
-  Architects_Daughter,
-  Dancing_Script,
-  Pacifico,
-  Amatic_SC,
-  Sacramento,
-  Satisfy,
-  Permanent_Marker,
-  Rock_Salt,
-  Covered_By_Your_Grace,
-  Reenie_Beanie,
-  Just_Another_Hand,
-  Nothing_You_Could_Do,
-  Waiting_for_the_Sunrise,
-  Cedarville_Cursive,
-  Loved_by_the_King,
-  La_Belle_Aurore,
-  Zeyada
-} from 'next/font/google'
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { HexColorPicker } from "react-colorful"
+import { Indie_Flower, Homemade_Apple, Caveat, Shadows_Into_Light, Kalam, Gloria_Hallelujah, Patrick_Hand, Architects_Daughter, Dancing_Script, Pacifico, Amatic_SC, Sacramento, Satisfy, Permanent_Marker, Rock_Salt, Covered_By_Your_Grace, Reenie_Beanie, Just_Another_Hand, Nothing_You_Could_Do, Waiting_for_the_Sunrise, Cedarville_Cursive, Loved_by_the_King, La_Belle_Aurore, Zeyada } from 'next/font/google'
 import { cn } from "@/lib/utils"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Paintbrush } from 'lucide-react'
 import { useState } from "react"
 
 // Initialize all fonts
-const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'] })
-const homemadeApple = Homemade_Apple({ weight: '400', subsets: ['latin'] })
-const caveat = Caveat({ subsets: ['latin'] })
-const shadowsIntoLight = Shadows_Into_Light({ weight: '400', subsets: ['latin'] })
-const kalam = Kalam({ weight: '400', subsets: ['latin'] })
-const gloriaHallelujah = Gloria_Hallelujah({ weight: '400', subsets: ['latin'] })
-const patrickHand = Patrick_Hand({ weight: '400', subsets: ['latin'] })
-const architectsDaughter = Architects_Daughter({ weight: '400', subsets: ['latin'] })
-const dancingScript = Dancing_Script({ subsets: ['latin'] })
-const pacifico = Pacifico({ weight: '400', subsets: ['latin'] })
-const amaticSC = Amatic_SC({ weight: '400', subsets: ['latin'] })
-const sacramento = Sacramento({ weight: '400', subsets: ['latin'] })
-const satisfy = Satisfy({ weight: '400', subsets: ['latin'] })
-const permanentMarker = Permanent_Marker({ weight: '400', subsets: ['latin'] })
-const rockSalt = Rock_Salt({ weight: '400', subsets: ['latin'] })
-const coveredByYourGrace = Covered_By_Your_Grace({ weight: '400', subsets: ['latin'] })
-const reenieBeanie = Reenie_Beanie({ weight: '400', subsets: ['latin'] })
-const justAnotherHand = Just_Another_Hand({ weight: '400', subsets: ['latin'] })
-const nothingYouCouldDo = Nothing_You_Could_Do({ weight: '400', subsets: ['latin'] })
-const waitingForTheSunrise = Waiting_for_the_Sunrise({ weight: '400', subsets: ['latin'] })
-const cedarvilleCursive = Cedarville_Cursive({ weight: '400', subsets: ['latin'] })
-const lovedByTheKing = Loved_by_the_King({ weight: '400', subsets: ['latin'] })
-const laBelleAurore = La_Belle_Aurore({ weight: '400', subsets: ['latin'] })
-const zeyada = Zeyada({ weight: '400', subsets: ['latin'] })
+const indieFlower = Indie_Flower({ weight: "400", subsets: ["latin"] })
+const homemadeApple = Homemade_Apple({ weight: "400", subsets: ["latin"] })
+const caveat = Caveat({ subsets: ["latin"] })
+const shadowsIntoLight = Shadows_Into_Light({ weight: "400", subsets: ["latin"] })
+const kalam = Kalam({ weight: "400", subsets: ["latin"] })
+const gloriaHallelujah = Gloria_Hallelujah({ weight: "400", subsets: ["latin"] })
+const patrickHand = Patrick_Hand({ weight: "400", subsets: ["latin"] })
+const architectsDaughter = Architects_Daughter({ weight: "400", subsets: ["latin"] })
+const dancingScript = Dancing_Script({ subsets: ["latin"] })
+const pacifico = Pacifico({ weight: "400", subsets: ["latin"] })
+const amaticSC = Amatic_SC({ weight: "400", subsets: ["latin"] })
+const sacramento = Sacramento({ weight: "400", subsets: ["latin"] })
+const satisfy = Satisfy({ weight: "400", subsets: ["latin"] })
+const permanentMarker = Permanent_Marker({ weight: "400", subsets: ["latin"] })
+const rockSalt = Rock_Salt({ weight: "400", subsets: ["latin"] })
+const coveredByYourGrace = Covered_By_Your_Grace({ weight: "400", subsets: ["latin"] })
+const reenieBeanie = Reenie_Beanie({ weight: "400", subsets: ["latin"] })
+const justAnotherHand = Just_Another_Hand({ weight: "400", subsets: ["latin"] })
+const nothingYouCouldDo = Nothing_You_Could_Do({ weight: "400", subsets: ["latin"] })
+const waitingForTheSunrise = Waiting_for_the_Sunrise({ weight: "400", subsets: ["latin"] })
+const cedarvilleCursive = Cedarville_Cursive({ weight: "400", subsets: ["latin"] })
+const lovedByTheKing = Loved_by_the_King({ weight: "400", subsets: ["latin"] })
+const laBelleAurore = La_Belle_Aurore({ weight: "400", subsets: ["latin"] })
+const zeyada = Zeyada({ weight: "400", subsets: ["latin"] })
 
 const fonts = {
   indieFlower,
@@ -86,34 +61,34 @@ const fonts = {
   cedarvilleCursive,
   lovedByTheKing,
   laBelleAurore,
-  zeyada
+  zeyada,
 }
 
 const fontOptions = [
-  { id: 'indieFlower', name: 'Indie Flower' },
-  { id: 'homemadeApple', name: 'Homemade Apple' },
-  { id: 'caveat', name: 'Caveat' },
-  { id: 'shadowsIntoLight', name: 'Shadows Into Light' },
-  { id: 'kalam', name: 'Kalam' },
-  { id: 'gloriaHallelujah', name: 'Gloria Hallelujah' },
-  { id: 'patrickHand', name: 'Patrick Hand' },
-  { id: 'architectsDaughter', name: 'Architects Daughter' },
-  { id: 'dancingScript', name: 'Dancing Script' },
-  { id: 'pacifico', name: 'Pacifico' },
-  { id: 'amaticSC', name: 'Amatic SC' },
-  { id: 'sacramento', name: 'Sacramento' },
-  { id: 'satisfy', name: 'Satisfy' },
-  { id: 'permanentMarker', name: 'Permanent Marker' },
-  { id: 'rockSalt', name: 'Rock Salt' },
-  { id: 'coveredByYourGrace', name: 'Covered By Grace' },
-  { id: 'reenieBeanie', name: 'Reenie Beanie' },
-  { id: 'justAnotherHand', name: 'Just Another Hand' },
-  { id: 'nothingYouCouldDo', name: 'Nothing You Could Do' },
-  { id: 'waitingForTheSunrise', name: 'Waiting for Sunrise' },
-  { id: 'cedarvilleCursive', name: 'Cedarville' },
-  { id: 'lovedByTheKing', name: 'Loved by the King' },
-  { id: 'laBelleAurore', name: 'La Belle Aurore' },
-  { id: 'zeyada', name: 'Zeyada' }
+  { id: "indieFlower", name: "Indie Flower" },
+  { id: "homemadeApple", name: "Homemade Apple" },
+  { id: "caveat", name: "Caveat" },
+  { id: "shadowsIntoLight", name: "Shadows Into Light" },
+  { id: "kalam", name: "Kalam" },
+  { id: "gloriaHallelujah", name: "Gloria Hallelujah" },
+  { id: "patrickHand", name: "Patrick Hand" },
+  { id: "architectsDaughter", name: "Architects Daughter" },
+  { id: "dancingScript", name: "Dancing Script" },
+  { id: "pacifico", name: "Pacifico" },
+  { id: "amaticSC", name: "Amatic SC" },
+  { id: "sacramento", name: "Sacramento" },
+  { id: "satisfy", name: "Satisfy" },
+  { id: "permanentMarker", name: "Permanent Marker" },
+  { id: "rockSalt", name: "Rock Salt" },
+  { id: "coveredByYourGrace", name: "Covered By Grace" },
+  { id: "reenieBeanie", name: "Reenie Beanie" },
+  { id: "justAnotherHand", name: "Just Another Hand" },
+  { id: "nothingYouCouldDo", name: "Nothing You Could Do" },
+  { id: "waitingForTheSunrise", name: "Waiting for Sunrise" },
+  { id: "cedarvilleCursive", name: "Cedarville" },
+  { id: "lovedByTheKing", name: "Loved by the King" },
+  { id: "laBelleAurore", name: "La Belle Aurore" },
+  { id: "zeyada", name: "Zeyada" },
 ]
 
 interface CaptionProps {
@@ -124,28 +99,30 @@ interface CaptionProps {
   onFontChange?: (font: string) => void
   fontSize?: number
   onFontSizeChange?: (size: number) => void
+  fontColor: string
+  onFontColorChange: (color: string) => void
 }
 
-export default function Caption({ 
-  caption, 
-  isOpen, 
+export default function Caption({
+  caption,
+  isOpen,
   onChange,
-  selectedFont = 'indieFlower',
+  selectedFont = "indieFlower",
   onFontChange = () => {},
   fontSize = 16,
-  onFontSizeChange = () => {}
+  onFontSizeChange = () => {},
+  fontColor,
+  onFontColorChange,
 }: CaptionProps) {
   const [currentPage, setCurrentPage] = useState(0)
+  const [showColorPicker, setShowColorPicker] = useState(false)
   const fontsPerPage = 8
   const totalPages = Math.ceil(fontOptions.length / fontsPerPage)
-  
+
   const nextPage = () => setCurrentPage((prev) => (prev + 1) % totalPages)
   const prevPage = () => setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages)
-  
-  const currentFonts = fontOptions.slice(
-    currentPage * fontsPerPage,
-    (currentPage + 1) * fontsPerPage
-  )
+
+  const currentFonts = fontOptions.slice(currentPage * fontsPerPage, (currentPage + 1) * fontsPerPage)
 
   return (
     <Collapsible open={isOpen}>
@@ -158,8 +135,9 @@ export default function Caption({
           maxLength={50}
           className={cn(
             "bg-black/20 border-white/10 text-white placeholder:text-white/40",
-            fonts[selectedFont as keyof typeof fonts]?.className || fonts.indieFlower.className
+            fonts[selectedFont as keyof typeof fonts]?.className || fonts.indieFlower.className,
           )}
+          style={{ color: fontColor }}
         />
 
         {/* Font size slider */}
@@ -176,6 +154,22 @@ export default function Caption({
           <span className="text-white/60 text-sm min-w-[2rem] text-right">{fontSize}px</span>
         </div>
 
+        {/* Font color picker */}
+        <div className="flex items-center justify-between">
+          <span className="text-white/60 text-sm">Color</span>
+          <Popover open={showColorPicker} onOpenChange={setShowColorPicker}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 border-white/10 bg-white/5 hover:bg-white/10">
+                <div className="mr-2 h-4 w-4 rounded-full border border-white/20" style={{ backgroundColor: fontColor }} />
+                <Paintbrush className="h-4 w-4 text-white/60" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto border-white/10 bg-black/90 backdrop-blur-xl p-3" align="end">
+              <HexColorPicker color={fontColor} onChange={onFontColorChange} />
+            </PopoverContent>
+          </Popover>
+        </div>
+
         {/* Font options with navigation */}
         <div className="relative">
           <div className="grid grid-cols-4 gap-2">
@@ -185,17 +179,15 @@ export default function Caption({
                 onClick={() => onFontChange(font.id)}
                 className={cn(
                   "p-2 rounded-lg text-center transition-colors",
-                  selectedFont === font.id 
-                    ? "bg-white/10 text-white" 
-                    : "text-white/60 hover:bg-white/5",
-                  fonts[font.id as keyof typeof fonts].className
+                  selectedFont === font.id ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/5",
+                  fonts[font.id as keyof typeof fonts].className,
                 )}
               >
                 Aa
               </button>
             ))}
           </div>
-          
+
           {/* Navigation buttons */}
           <button
             onClick={prevPage}
@@ -218,9 +210,7 @@ export default function Caption({
                 onClick={() => setCurrentPage(index)}
                 className={cn(
                   "w-1.5 h-1.5 rounded-full transition-colors",
-                  currentPage === index
-                    ? "bg-white"
-                    : "bg-white/20 hover:bg-white/40"
+                  currentPage === index ? "bg-white" : "bg-white/20 hover:bg-white/40",
                 )}
               />
             ))}

@@ -48,7 +48,6 @@ import CropTool from "../editor/CropTool"
 import DraggableSticker from "../common/DraggableSticker"
 import PolaroidBG from "../editor/PolaroidBG"
 
-
 // Initialize all fonts
 const indieFlower = Indie_Flower({ weight: "400", subsets: ["latin"] })
 const homemadeApple = Homemade_Apple({ weight: "400", subsets: ["latin"] })
@@ -196,6 +195,7 @@ export default function PolaroidGenerator() {
   const [isStickerGalleryOpen, setIsStickerGalleryOpen] = useState(false)
   const stickerMenuRef = useRef<HTMLDivElement>(null)
   const [backgroundColor, setBackgroundColor] = useState("#FFFFFF")
+  const [captionFontColor, setCaptionFontColor] = useState("#000000") // Added font color state
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target?.files?.[0]
@@ -287,10 +287,6 @@ export default function PolaroidGenerator() {
       setActiveTool(null)
       setIsPresetSelectionOpen(false)
       setIsStickerGalleryOpen(false)
-    } else if (toolId === "bgcolor") {
-      setIsPresetSelectionOpen(false)
-      setIsStickerGalleryOpen(false)
-      setActiveTool(activeTool === toolId ? null : toolId)
     } else {
       setIsPresetSelectionOpen(false)
       setIsStickerGalleryOpen(false)
@@ -465,7 +461,6 @@ export default function PolaroidGenerator() {
                         "bg-white rounded-2xl shadow-2xl",
                         "transition-transform duration-300",
                         "aspect-[4/5]",
-                       
                       )}
                       style={{ backgroundColor }}
                     >
@@ -497,10 +492,10 @@ export default function PolaroidGenerator() {
                           {caption && (
                             <p
                               className={cn(
-                                "text-center text-gray-800 leading-tight",
+                                "text-center leading-tight",
                                 fonts[selectedFont as keyof typeof fonts]?.className || fonts.indieFlower.className,
                               )}
-                              style={{ fontSize: `${captionFontSize}px` }}
+                              style={{ fontSize: `${captionFontSize}px`, color: captionFontColor }} // Updated to include font color
                             >
                               {caption}
                             </p>
@@ -625,8 +620,8 @@ export default function PolaroidGenerator() {
                           className={cn(
                             // Mobile styles
                             "h-[120px] overflow-x-auto scrollbar-hide",
-                            // Desktop styles - enhanced scrollbar
-                            "lg:h-auto lg:overflow-visible",
+                            // Desktop styles - enhanced scrollbar with max height
+                            "lg:h-auto lg:max-h-[300px] lg:overflow-y-auto",
                             "lg:scrollbar-thin lg:scrollbar-track-transparent",
                             "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]",
                             "lg:pr-2",
@@ -676,8 +671,8 @@ export default function PolaroidGenerator() {
                           className={cn(
                             // Mobile styles
                             "overflow-x-auto scrollbar-hide",
-                            // Desktop styles - enhanced scrollbar
-                            "lg:overflow-y-auto lg:overflow-x-hidden",
+                            // Desktop styles - enhanced scrollbar with max height
+                            "lg:max-h-[300px] lg:overflow-y-auto lg:overflow-x-hidden",
                             "lg:scrollbar-thin lg:scrollbar-track-transparent",
                             "lg:scrollbar-thumb-white/[0.08] lg:hover:scrollbar-thumb-white/[0.15]",
                             "lg:pr-2",
@@ -721,6 +716,8 @@ export default function PolaroidGenerator() {
                         onFontChange={setSelectedFont}
                         fontSize={captionFontSize}
                         onFontSizeChange={setCaptionFontSize}
+                        fontColor={captionFontColor}
+                        onFontColorChange={setCaptionFontColor}
                       />
                     </CollapsibleContent>
                   </Collapsible>
