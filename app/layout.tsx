@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Krishna" }],
   robots: "index, follow",
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/favicon.ico",
     apple: [
