@@ -196,6 +196,7 @@ export default function PolaroidGenerator() {
   const stickerMenuRef = useRef<HTMLDivElement>(null)
   const [backgroundColor, setBackgroundColor] = useState("#FFFFFF")
   const [captionFontColor, setCaptionFontColor] = useState("#000000") // Added font color state
+  const [originalFileName, setOriginalFileName] = useState<string>("polaroid")
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target?.files?.[0]
@@ -205,6 +206,9 @@ export default function PolaroidGenerator() {
   }
 
   const processFile = (file: File) => {
+    // Get the file name without extension
+    const fileName = file.name.replace(/\.[^/.]+$/, "")
+    setOriginalFileName(fileName)
     const reader = new FileReader()
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const result = e.target?.result
@@ -273,7 +277,7 @@ export default function PolaroidGenerator() {
       })
 
       const link = document.createElement("a")
-      link.download = "polaroid.png"
+      link.download = `${originalFileName}-polaroid.png`
       link.href = canvas.toDataURL("image/png", 1.0)
       link.click()
     } catch (error) {
