@@ -244,18 +244,32 @@ export default function PolaroidGenerator() {
     try {
       const canvas = await html2canvas(polaroidRef.current, {
         backgroundColor: null,
-        scale: 2, // Higher quality
+        scale: 3,
         logging: false,
         useCORS: true,
         allowTaint: true,
         onclone: (clonedDoc) => {
-          // Find the image in the cloned document
-          const clonedPolaroid = clonedDoc.querySelector('[data-polaroid-image]')
+          const clonedPolaroid = clonedDoc.querySelector("[data-polaroid]") as HTMLElement
           if (clonedPolaroid) {
-            // Ensure object-fit: cover is applied
-            clonedPolaroid.className = 'object-cover w-full h-full'
+            const stickerContainer = clonedPolaroid.querySelector(".absolute.inset-3") as HTMLElement
+            if (stickerContainer) {
+              stickerContainer.style.transform = "none"
+              const stickers = stickerContainer.querySelectorAll("[data-sticker]")
+              stickers.forEach((sticker: Element) => {
+                const stickerElement = sticker as HTMLElement
+                const computedStyle = window.getComputedStyle(stickerElement)
+                stickerElement.style.transform = computedStyle.transform
+                stickerElement.style.width = computedStyle.width
+                stickerElement.style.height = computedStyle.height
+                stickerElement.style.transition = "none"
+                stickerElement.style.opacity = "1"
+                stickerElement.style.position = "absolute"
+                const controls = stickerElement.querySelectorAll(".group-hover\\:opacity-100")
+                controls.forEach((control) => ((control as HTMLElement).style.display = "none"))
+              })
+            }
           }
-        }
+        },
       })
 
       const link = document.createElement("a")
@@ -505,6 +519,7 @@ export default function PolaroidGenerator() {
                             url={sticker.url}
                             name={sticker.name}
                             onRemove={() => handleStickerRemove(sticker.id)}
+                            data-sticker={true}
                           />
                         ))}
                       </div>
@@ -729,7 +744,6 @@ export default function PolaroidGenerator() {
                       <PolaroidBG value={backgroundColor} onChange={setBackgroundColor} />
                     </CollapsibleContent>
                   </Collapsible>
-                  
                 </div>
               </div>
             )}
@@ -759,3 +773,4 @@ export default function PolaroidGenerator() {
     </div>
   )
 }
+
