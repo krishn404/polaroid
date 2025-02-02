@@ -60,6 +60,7 @@ export default function DraggableSticker({ url, name, onRemove }: DraggableStick
         whileHover={{ scale: 1.1 }}
         whileDrag={{ scale: 1.2 }}
         onDoubleClick={onRemove}
+        data-sticker
       >
         <Image
           src={url || "/placeholder.svg"}

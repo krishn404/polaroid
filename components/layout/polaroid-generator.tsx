@@ -244,23 +244,18 @@ export default function PolaroidGenerator() {
     try {
       const canvas = await html2canvas(polaroidRef.current, {
         backgroundColor: null,
-        scale: 3,
+        scale: 2, // Higher quality
         logging: false,
         useCORS: true,
         allowTaint: true,
         onclone: (clonedDoc) => {
-          const clonedImage = clonedDoc.querySelector("[data-polaroid-image]") as HTMLElement
-          if (clonedImage) {
-            clonedImage.style.objectFit = "cover"
-            clonedImage.style.width = "100%"
-            clonedImage.style.height = "100%"
+          // Find the image in the cloned document
+          const clonedPolaroid = clonedDoc.querySelector('[data-polaroid-image]')
+          if (clonedPolaroid) {
+            // Ensure object-fit: cover is applied
+            clonedPolaroid.className = 'object-cover w-full h-full'
           }
-
-          const clonedStickers = Array.from(clonedDoc.querySelectorAll("[data-polaroid-sticker]")) as HTMLElement[]
-          clonedStickers.forEach((sticker) => {
-            sticker.style.transform = sticker.style.transform
-          })
-        },
+        }
       })
 
       const link = document.createElement("a")
