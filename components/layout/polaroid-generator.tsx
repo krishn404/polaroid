@@ -242,50 +242,57 @@ export default function PolaroidGenerator() {
   }
 
   const downloadImage = async () => {
-    if (!polaroidRef.current || !processedImage) return
+    if (!polaroidRef.current || !processedImage) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const canvas = await html2canvas(polaroidRef.current, {
+      const polaroidElement = polaroidRef.current;
+
+      // Set all stickers to their final state before capture
+      const stickerElements = polaroidElement.querySelectorAll('[data-sticker]');
+      stickerElements.forEach((sticker) => {
+        const element = sticker as HTMLElement;
+        // Ensure sticker is visible and positioned correctly
+        element.style.opacity = '1';
+        element.style.visibility = 'visible';
+        // Hide control elements
+        const controls = element.querySelectorAll('.group-hover\\:opacity-100');
+        controls.forEach(control => (control as HTMLElement).style.display = 'none');
+      });
+
+      // Capture the exact state
+      const canvas = await html2canvas(polaroidElement, {
         backgroundColor: null,
-        scale: 3,
-        logging: false,
+        scale: 4,
         useCORS: true,
         allowTaint: true,
+        logging: false,
+        imageTimeout: 0,
+        removeContainer: false,
+        foreignObjectRendering: true,
         onclone: (clonedDoc) => {
-          const clonedPolaroid = clonedDoc.querySelector("[data-polaroid]") as HTMLElement
-          if (clonedPolaroid) {
-            const stickerContainer = clonedPolaroid.querySelector(".absolute.inset-3") as HTMLElement
-            if (stickerContainer) {
-              stickerContainer.style.transform = "none"
-              const stickers = stickerContainer.querySelectorAll("[data-sticker]")
-              stickers.forEach((sticker: Element) => {
-                const stickerElement = sticker as HTMLElement
-                const computedStyle = window.getComputedStyle(stickerElement)
-                stickerElement.style.transform = computedStyle.transform
-                stickerElement.style.width = computedStyle.width
-                stickerElement.style.height = computedStyle.height
-                stickerElement.style.transition = "none"
-                stickerElement.style.opacity = "1"
-                stickerElement.style.position = "absolute"
-                const controls = stickerElement.querySelectorAll(".group-hover\\:opacity-100")
-                controls.forEach((control) => ((control as HTMLElement).style.display = "none"))
-              })
-            }
+          const clonedElement = clonedDoc.querySelector('[data-polaroid]') as HTMLElement;
+          if (clonedElement) {
+            // Copy all styles from original
+            const styles = window.getComputedStyle(polaroidElement);
+            Array.from(styles).forEach(key => {
+              clonedElement.style.setProperty(key, styles.getPropertyValue(key));
+            });
           }
-        },
-      })
+        }
+      });
 
-      const link = document.createElement("a")
-      link.download = `${originalFileName}-polaroid.png`
-      link.href = canvas.toDataURL("image/png", 1.0)
-      link.click()
+      // Download with original filename
+      const link = document.createElement("a");
+      link.download = `${originalFileName}-polaroid.png`;
+      link.href = canvas.toDataURL("image/png", 1.0);
+      link.click();
     } catch (error) {
-      console.error("Error generating image:", error)
+      console.error("Error generating image:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleToolClick = (toolId: ToolId) => {
     if (toolId === "filters") {
